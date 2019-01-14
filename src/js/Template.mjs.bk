@@ -1,0 +1,123 @@
+
+function _log(cmd, args) {
+    for (var i=0; i<args.length; i++) cmd(args[i]);
+}
+function logd() {  _log(console.log, arguments); }
+function loge() {  _log(console.error, arguments); }
+
+function tempParse(ele) {
+    var result;
+    logd("toparse", ele);
+    if (ele.tagName.toLowerCase() == "template") {
+        // it's a loop function
+        if (ele.hasAttribute('data-tloop')) result = new TemplateLoop(ele);
+        // normal template
+        else result = new Template(ele);
+    } else {
+        // not template
+        result = new TemplateElement(ele);
+    }
+
+    return result;
+}
+
+
+function tempRender(body, varspace) {
+    var html = "";
+
+    // variable emulate
+    for (var key in varspace) {
+        html += "var " + key + " = " + varspace[key] + ";"
+    }
+
+    for (var i=0; i<body.length; i++) {
+        if (body[i] instanceof TemplateLoop) {
+            html += body[i].render(varspace);
+        }
+        // it single text
+        else if (typeof body[i] == 'string') {
+            html += body[i];
+        }
+        // array
+        else {
+            html += tempRender(body[i], varspace);
+        }
+    }
+
+    return html;
+
+}
+
+// Normal Element inside template
+function TemplateElement(ele) {
+    this.engine = new Template(ele);
+    this.me = ele.cloneNode(false); // NO children clone
+}
+
+function TemplateLoop(ele, loopvar) {
+    this.loopvar = ele.attributes['data-tloop'].value;
+    ele.removeAttribute('data-tloop');  // we know it a loop, dont let engine continue to loop
+    this.engine = new Template(ele);
+    
+    this.render = (function(varspace) {
+        if (!(this.loopvar in varspace)) {
+            throw "Loop render failed: loopvar '" + this.loopvar + "' not in varspace" ;
+        }
+        var arr = varspace[this.loopvar];
+        if (!(arr instanceof Array)) {
+            throw "Loop render failed: loopvar '" + this.loopvar + "' is not Array";
+        }
+        var localVars = {};
+        // global variable will be passed down. later override if any
+        for (var v in varspace) {
+            if (v!=loopvar) localVars[v] = varspace[v];
+        }
+        
+        // loop over
+        var html = "";
+        for (var i=0; i<arr.length; i++) {
+            localVars['_loopi_'] = i;
+            Object.assign(localVars, arr[i]);   // get local variables
+            html += this.engine.render(localVars);
+        }
+        return html;
+
+    }).bind(this);
+}
+
+export function Template(ele) {
+    this.temp = ele;    // generate Element
+    this.childs = [];
+    
+    this.init = (function() {
+        this.childs = [];
+        if (this.temp.tagName.toLowerCase() == "template") {
+            var c = this.temp.content.children;
+        } else {
+            var c = this.temp.children;
+        }
+        for (var i=0; i<c.length; i++) this.childs.push(tempParse(c[i]));
+        return this;
+    });
+
+    this.render = (function(varspace) {
+        var html;
+        try {
+            html = eval("`" + tempRender(this.childs, varspace || {}) + "`");
+            console.log("reder html", html);
+        } catch(error) {
+            console.error("render failed", error);
+        }
+        return html;
+    }).bind(this);
+
+    this.getDiv = (function() {
+        var div = document.createElement('div');
+        div.innerHTML = this.render();
+        return div;
+    })
+
+    // initial
+    if (ele) this.init();
+
+}

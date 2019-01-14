@@ -1,0 +1,46 @@
+
+@media only screen and (min-width: 400px) {
+  :root {
+    --card-container-width: 100%;
+  }
+  .md-card-item.md-expandable--opened {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* allow scroll in fullscreen */
+  }
+} 
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+  :root {
+    --card-container-width: 750px;
+  }
+  .md-card-item.md-expandable--opened {
+    width: 95%;
+    position: relative;
+    top: auto;
+    left: auto;
+    height: auto;
+    overflow: inherit;
+  }
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+  :root {
+    --card-container-width: 970px;
+  }
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+/*
+@media only screen and (min-width: 1200px) {
+  :root {
+    --card-normal-width: 1100px;
+  }
+}*/
+

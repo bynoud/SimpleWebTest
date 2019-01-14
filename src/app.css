@@ -1,0 +1,51 @@
+body {
+    /* light font */
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
+
+    /* preserve for top navbar */
+    margin-top: 4rem;
+}
+
+/* re style card to have shadow & hover effect */
+.card-shadow {
+    /* margin for shadow under */
+    margin-bottom: 1rem;
+    /* Add shadows to create the "card" effect */
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+}
+  
+/* On mouse-over, add a deeper shadow */
+.card-shadow:hover {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+
+/* restyle - all card-header get pointer cursor */
+.card-header {
+    cursor: pointer;
+}
+  
+.mainnavbar-user-avatar {
+    /* This image is 687 wide by 1024 tall, similar to your aspect ratio */
+    background-image: url('imgs/img_avatar.png');
+    
+    /* make a square container */
+    width: 2.4rem;
+    height: 2.4rem;
+
+    /* fill the container, preserving aspect ratio, and cropping to fit */
+    background-size: cover;
+
+    /* center the image vertically and horizontally */
+    background-position: top center;
+
+    /* round the edges to a circle with border radius 1/2 container size */
+    border-radius: 50%;
+
+}
+
+.system-msg {
+    font-style: italic;
+    color: var(--gray);
+}

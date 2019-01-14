@@ -1,0 +1,198 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+		<title>Testing</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet">
+
+		<link rel="stylesheet" href="index.css">
+		<link rel="stylesheet" href="libs/MDNavbar.css">
+		<!-- script type="module" src="MDExpandable.js"></script -->
+		
+    <!-- script src="http://js.nicedit.com/nicEdit-latest.js"></script -->
+    <script src="./nicEdit-latest.js"></script>
+    <script type="text/javascript">
+      bkLib.onDomLoaded(function() {
+        console.log("start nicedit");
+        nicEditors.allTextAreas({
+          buttonList : ['bold','italic','underline','ol','ul','indent','outdent'],
+          maxHeight  : 150
+        });
+        var xx = document.getElementsByClassName('nicEdit-panel');
+        for (var i=0; i<xx.length; i++) {
+          var e = document.createElement('span');
+          e.className = 'md-textarea--send md-right';
+          e.style.cursor = "pointer";
+          e.addEventListener('click', function() { console.log("kll"); });
+          xx[i].appendChild(e);
+        }
+        console.log("done nicedit");
+      });
+    </script>
+
+	</head>
+	
+  <body style="background-color:gray">
+
+    <!-- div class="md-topnav" -->
+    <div class="md-navbar-flex">
+      <a class="active" href="#home">Home</a>
+      <a href="#news">News</a>
+      <a href="#contact">Contact</a>
+      <a href="#about">About</a>
+    </div>
+
+	
+    <div style="justify-content:center">
+
+		<div class="md-card-container">
+		
+			<div class="md-card-item">
+			  <div class="md-expandable--header">
+          <span class="md-expandable--control md-right"></span>
+          <div class="md-text--primary tooltip">
+            <span class="md-icons--info">
+            </span>
+            <span class="tooltiptext">this is tip</span>
+            long title on primary text shoule be truncated asdaj oqweq iu</div>
+          <div class="md-text--subprimary">subprimary on 2 line adsq qwer asdf qwerf asdf
+          asdf qew aadf qwer qwer qwer qwerqewiru sdaifu ower qwiuqwe </div>
+          <div class="md-horizontal-separator"></div>
+          <div class="md-text--secondary__2lines md-expandable--autohide">long description as 2 lines asdfqw qwer asdfkq0 qweriu qwer uoiqwer qowdfkassn
+            awdfasdk fjasfa morea aewqowo asd qpw asd qwe as last</div>
+			  </div>
+        <div class="md-expandable-content">
+          <div class="md-expandable-content--control">
+            <button class="md-expandable-content--more md-button-flat">More...</button>
+            <button class="md-expandable-content--less md-button-flat">less...</button>
+          </div>
+          <p class="md-expandable-content--hidable">
+          1 other text will be displayed in full sdrqwe sdfa d
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa</p>
+          <p class="md-expandable-content--hidable"> 2 other text will be displayed in full sdrqwe sdfa d
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa</p>
+          <p class="md-expandable-content--hidable">
+          3 other text will be displayed in full sdrqwe sdfa d
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa</p>
+          
+          <div class="md-textarea">
+            <!-- span class="md-textarea--send md-right"></span -->
+            <textarea> HTML content default in textarea </textarea>
+          </div>
+        </div>
+			</div>
+			
+			<div id='testIDxx' class="md-card-item">
+			  <div id="testIDyy" class="md-expandable--header">
+          <span class="md-expandable--control md-right"></span>
+          <div class="md-text--primary"><span class="md-icons--warning"></span>
+            long title on primary text shoule be truncated asdaj oqweq iu</div>
+          <div class="md-text--subprimary">subprimary on 2 line adsq qwer asdf qwerf asdf
+          asdf qew aadf qwer qwer qwer qwerqewiru sdaifu ower qwiuqwe </div>
+          <div class="md-horizontal-separator"></div>
+          <div class="md-text--secondary__2lines md-expandable--autohide">long description as 2 lines asdfqw qwer asdfkq0 qweriu qwer uoiqwer qowdfkassn
+            awdfasdk fjasfa morea aewqowo asd qpw asd qwe as last</div>
+			  </div>
+        <div id="xx" class="md-expandable-content">
+          <div class="md-expandable-content--control">
+            <button class="md-expandable-content--more md-button-flat">More...</button>
+            <button class="md-expandable-content--less md-button-flat">less...</button>
+          </div>
+          <p class="md-expandable-content--hidable">
+          1 other text will be displayed in full sdrqwe sdfa d
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa</p>
+          <p class="md-expandable-content--hidable"> 2 other text will be displayed in full sdrqwe sdfa d
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa</p>
+          <p class="md-expandable-content--hidable">
+          3 other text will be displayed in full sdrqwe sdfa d
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa</p>
+          
+          <div class="md-textarea">
+            <!-- span class="md-textarea--send md-right"></span -->
+            <textarea> HTML content default in textarea </textarea>
+          </div>
+        </div>
+			</div>
+			
+			<div class="md-card-item">
+			  <div class="md-expandable--header">
+          <span class="md-expandable--control md-right"></span>
+          <div class="md-text--primary"><span class="md-icons--error"></span>
+            long title on primary text shoule be truncated asdaj oqweq iu</div>
+          <div class="md-text--subprimary">subprimary on 2 line adsq qwer asdf qwerf asdf
+          asdf qew aadf qwer qwer qwer qwerqewiru sdaifu ower qwiuqwe </div>
+          <div class="md-horizontal-separator"></div>
+          <div class="md-text--secondary__2lines md-expandable--autohide">long description as 2 lines asdfqw qwer asdfkq0 qweriu qwer uoiqwer qowdfkassn
+            awdfasdk fjasfa morea aewqowo asd qpw asd qwe as last</div>
+			  </div>
+        <div class="md-expandable-content">
+          <div class="md-expandable-content--control">
+            <button class="md-expandable-content--more md-button-flat">More...</button>
+            <button class="md-expandable-content--less md-button-flat">less...</button>
+          </div>
+          <p class="md-expandable-content--hidable">
+          1 other text will be displayed in full sdrqwe sdfa d
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa</p>
+          <p class="md-expandable-content--hidable"> 2 other text will be displayed in full sdrqwe sdfa d
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa</p>
+          <p class="md-expandable-content--hidable">
+          3 other text will be displayed in full sdrqwe sdfa d
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa
+          ewrq adfsgmapo qweroqw easdf mqreq wretqowpteoq sdfasdf qetq asdfa</p>
+          
+          <div class="md-textarea">
+            <!-- span class="md-textarea--send md-right"></span -->
+            <textarea> HTML content default in textarea </textarea>
+          </div>
+        </div>
+			</div>
+			
+		</div>
+		<!-- div class="md-expandable-fullscreen-container">
+			<a href="#" id="close-content" class="md-expandable-close"><span class="x-1"></span><span class="x-2"></span></a>
+			<div id="cover" class="md-expandable-content"></div>
+		</div -->
+
+    </div> <!-- content -->
+	
+	
+
+
+	<!--
+	<div id="open-content" class="open-content">
+	  <a href="#" id="close-content" class="close-content"><span class="x-1"></span><span class="x-2"></span></a>
+	  <!--
+	  <img id="open-content-image" src="" />
+	  <div class="text" id="open-content-text">
+	  </div> -- >
+	  <div id="open-content-text"></div>
+	</div>
+	-->
+
+	
+	<script src="index.js"></script>
+  <script src="TextOverflowClamp.js"></script>
+  <script src="./libs/MDExpandable.js"></script>
+
+
+	</body>
+</html>
