@@ -56,11 +56,25 @@ export function createTemplate(ele) {
             return new TemplateCondition(ele, function(vs) {
                 return !keyInObject(ele.dataset['tunless'], vs);
             })
+        } else if (ele.dataset['tcond']) {
+            return new TemplateCondition(ele, vs => {
+                let resolveCond = tempCalculate(ele.dataset['tcond'], vs);
+                return eval(resolveCond);
+            });
         }
     }
     // no template function
     return new Template(ele);
     
+}
+
+// return outer as <div>, keep all attribute same
+function template2div(ele) {
+    const div = document.createElement('div');
+    for (let attr of ele.attributes) {
+        div.setAttribute(attr.name, attr.value);
+    }
+    return div;
 }
 
 /**
@@ -101,6 +115,9 @@ function Template(ele) {
 function TemplateLoop(ele, loopvar) {
     Template.call(this, ele);
     this.loopvar = loopvar;
+    if (ele.dataset['tasvar']) {
+        this.asVar = ele.dataset['tasvar']; // this will take value of loop-index or loop-key
+    }
 }
 TemplateLoop.prototype = Object.create(Template.prototype);
 TemplateLoop.prototype.constructor = TemplateLoop;
@@ -127,24 +144,6 @@ Template.prototype.len = function() {
 var indent = 0;
 // return a Node
 
-Template.prototype.renderSelf = function(varspace, onErrorCB, parentDiv) {
-    console.log("self", this);
-    var outerDiv;
-    // <template> just converted to <div> for easy maintain
-    if (this.isTemplate==true) {
-        if (parentDiv) outerDiv = parentDiv;
-        else outerDiv = document.createElement('div');
-    }
-    // Keep normal Element as it is, resolve variable inside tag anchor
-    else {
-        temporaryDiv.innerHTML = tempCalculate(this.me.outerHTML, varspace, onErrorCB);
-        outerDiv = temporaryDiv.children[0];
-        temporaryDiv.removeChild(outerDiv);
-        
-    }
-    return outerDiv;
-}
-
 Template.prototype.render = function(varspace, onErrorCB, parentDiv) {
     var outerDiv;
     // simple text
@@ -155,7 +154,7 @@ Template.prototype.render = function(varspace, onErrorCB, parentDiv) {
 
         if (this.isTemplate==true) {
             if (parentDiv) outerDiv = parentDiv;
-            else outerDiv = document.createElement('div');
+            else outerDiv = template2div(this.me);//document.createElement('div');
         }
         // Keep normal Element as it is, resolve variable inside tag anchor
         else {
@@ -178,25 +177,36 @@ Template.prototype.render = function(varspace, onErrorCB, parentDiv) {
 TemplateLoop.prototype.render = function(varspace, onErrorCB, parentDiv) {
     console.log("looop", this, this.temp, this.me, varspace);
 
-    if (!(this.loopvar in varspace) ||
-        !(varspace[this.loopvar] instanceof Array)) {
+    if (!(this.loopvar in varspace)) {
         // throw "Loop render failed: loopvar '" + this.loopvar + "' not in varspace" ;
         // just return empty div 
-        console.error("loop failed", this.loopvar, varspace);
+        console.log("loop not found", this.loopvar, varspace);
         return parentDiv;
     }
+
+    // if this is top element, need create a container <div> surrounding the loop items
+    var outerDiv = parentDiv || template2div(this.me);//document.createElement('div');
 
     var arr = varspace[this.loopvar];
     // global variable will be passed down. later override if any
     var localVars = Object.assign({}, varspace);
     // loop over
-    // if this is top element, need create a container <div> surrounding the loop items
-    var outerDiv = parentDiv || document.createElement('div');
-    for (var i=0; i<arr.length; i++) {
-        //let outerDiv = this.renderSelf(varspace, onErrorCB, parentDiv);
-        localVars['_loopi_'] = i;
-        var v = Object.assign({}, localVars, arr[i]);   // dont touch localVars
-        _super(this).render.call(this, v, onErrorCB, outerDiv);    // all child is appended to outerDiv under this call
+    if (arr instanceof Array) {
+        arr.forEach( (each, i) => {
+            localVars['_loopi_'] = i;
+            var v = Object.assign({}, localVars, each);   // dont touch localVars
+            if (this.asVar) v[this.asVar] = i;
+            _super(this).render.call(this, v, onErrorCB, outerDiv);    // all child is appended to outerDiv under this call
+        });
+    } else if (arr instanceof Object) {
+        for (let key in arr) {
+            localVars['_loopi_'] = key;
+            var v = Object.assign({}, localVars, arr[key]);
+            if (this.asVar) v[this.asVar] = key;
+            _super(this).render.call(this, v, onErrorCB, outerDiv);
+        }
+    } else {
+        console.error("Loop template without array or object");
     }
     console.log(">".repeat(indent), "end of loop", outerDiv);
     return outerDiv;

@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <link rel="stylesheet" href="libs/bootstrap-4.2.1-dist/css/bootstrap.css">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
-    <!-- <script src="https://cdn.ckeditor.com/ckeditor5/11.2.0/balloon/ckeditor.js"></script> -->
 
-    <link rel="stylesheet" href="app.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+
+    <!-- 'defer' is needed for order execution -->
 
     <!-- libs JS -->
-    <script src="libs/jquery-3.3.1.js" defer></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous" defer></script>
     <script src="https://unpkg.com/popper.js/dist/umd/popper.min.js" defer></script>
-    <script src="libs/bootstrap-4.2.1-dist/js/bootstrap.js" defer></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" defer></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
 
     <!-- Firebase App is always required and must be first -->
     <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-app.js" defer></script>
@@ -27,183 +29,21 @@
     <!-- Comment out (or don't include) services that you don't want to use -->
     <!-- <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-storage.js"></script> -->
 
-    <script src="https://cdn.ckeditor.com/4.11.1/basic/ckeditor.js" defer></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 
-    <script type="module" src="js/UserReport.js" defer></script>
-    <script type="module" src="js/Template.js" defer></script>
+    <script src="./bundle.js" defer></script>
 
 </head>
 <body>
 
-    <!-- Stack of unused element. pop from this when used -->
-    <div id="app-stack" class="d-none">
-        
-        <section id="report-view">Hello</section>
-        
-        <!-- login view -->
-        <section style="margin-top:150px" id="login-view">
-            <div class="card">
-                <div class="card-header text-center text-primary">
-                    <h5 class="display-5">MRVL REPORTS</h5>
-                </div>
-                <div class="align-self-center my-5">
-                    <button id="app--login" class="btn btn-outline-primary">
-                        <img class="img-fluid" src="imgs/btn_google_dark_normal_ios.svg"/>
-                        <span>Login with Google</span>
-                    </button>
-                </div>
-            </div>
-        </section>
-
+    <!-- stack -->
+    <div class="d-none" id='app-stack'>
         <!-- editor -->
-        
-        <section>
-            <textarea name="content" id="editor"></textarea>
-
-            <script>
-                ClassicEditor
-                    .create( document.querySelector( '#editor' ) )
-                    .catch( error => {
-                        console.error( error );
-                    } );
-            </script>
-    
-            <!-- <div id="editor"></div>
-
-            <script>
-                BalloonEditor
-                    .create( document.querySelector( '#editor' ) )
-                    .catch( error => {
-                        console.error( error );
-                    } );
-            </script> -->
-                
-                
-        </section>
-    </div>
-
-    <div id="app-templates">
-
-        <!-- Report template -->
-        <template id="t-report-user-view">
-            <!-- default need a single object input -->
-
-            <!-- ${user} : refer to field 'user' of input object -->
-            <div class="__accordion report-view" id="report-view--${user}">
-                <!-- loop='tasks' : refer to field 'tasks' under input object as array to loop throught
-                    also set current scope to <input>.task -->
-                <div data-tloop="tasks" class="card card-shadow" id="report-item--${user}--${taskid}">
-                    <div class="card-header font-weight-bold" data-toggle="collapse" data-target="#report-item--${user}--${taskid}-collapse">
-                        <!-- ${user} will find in current scope, then look for upper scope 
-                            ${taskid} will refer to <input>.task.taskid (if exists)
-                            ${title} = <input>.task.title -->
-                        <a href="#">${title}</a>
-                    </div>
-
-                    <div class="card-body py-3">
-                        <!-- task title -->
-                        <p class="card-title text-truncate text-muted">${desc}</p>
-                        <!-- task latest status -->
-                        <p data-tunless="latestid" class="system-msg">There's no Status submitted</p>
-                        <div data-tonly="latestid" class="card-text report-status-detail" id="report-status-latest--${user}--{latestid}">
-                            <p>
-                                <span class="report-status-date mr-3 font-weight-bold text-success">[${latestdate}]</span>
-                                <span class="report-status-detail">${latesttext}</span>
-                            </p>
-                        </div>
-                        <!-- task old status -->
-                        <div id="report-item--${user}--${taskid}-collapse" class="collapse" data-parent="#report-view--${user}">
-                            <template data-tonly="latestid">
-                                <!-- this only apear if 'oldstatus' is there, and it's not empty -->
-                                <a data-tonly="oldstatus" class="report-status-more mr-5" href="#">more...</a>
-                                <a data-tonly="oldstatus" class="report-status-more" href="#">less...</a>
-                                <!-- this only apear if 'oldstatus' is not there, or it's empty -->
-                                <p data-tunless='oldstatus' class="system-msg">There's no Older Status</p>
-                                <!-- loop throught <input>.task.oldstatus as array -->
-                                <div data-tloop="oldstatus" class="card-text text-muted font-weight-light font-italic">
-                                    <div class="report-status-detail" id="report-status-old--${user}--${statusid}">
-                                        <p>
-                                            <span class="report-status-date mr-3 text-primary">[${date}]</span>
-                                            <span class="report-status-detail">${text}</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <!-- end of template cause scope to go up -->
-                            </template>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </template>
-
-        <template id="t-report-user-view-bk">
-                <!-- default need a single object input -->
-    
-                <!-- ${user} : refer to field 'user' of input object -->
-                <div class="__accordion report-view" id="report-view--${user}">
-                    <template data-tloop="tasks">
-                        <!-- loop='tasks' : refer to field 'tasks' under input object as array to loop throught
-                            also set current scope to <input>.task -->
-                        <div class="card card-shadow" id="report-item--${user}--${taskid}">
-                            <div class="card-header font-weight-bold" data-toggle="collapse" data-target="#report-item--${user}--${taskid}-collapse">
-                                <!-- ${user} will find in current scope, then look for upper scope 
-                                    ${taskid} will refer to <input>.task.taskid (if exists)
-                                    ${title} = <input>.task.title -->
-                                <a href="#">${title}</a>
-                            </div>
-    
-                            <div class="card-body py-3">
-                                <!-- task title -->
-                                <p class="card-title text-truncate text-muted">${desc}</p>
-                                <!-- task latest status -->
-                                <template data-tunless="latestid">
-                                    <p class="system-msg">There's no Status submitted</p>
-                                </template>
-                                <template data-tonly="latestid">
-                                    <div class="card-text report-status-detail" id="report-status-latest--${user}--{latestid}">
-                                        <p>
-                                            <span class="report-status-date mr-3 font-weight-bold text-success">[${latestdate}]</span>
-                                            <span class="report-status-detail">${latesttext}</span>
-                                        </p>
-                                    </div>
-                                </template>
-                                <!-- task old status -->
-                                <div id="report-item--${user}--${taskid}-collapse" class="collapse" data-parent="#report-view--${user}">
-                                    <template data-tonly="latestid">
-                                        <!-- this only apear if 'oldstatus' is there, and it's not empty -->
-                                        <template data-tonly="oldstatus">
-                                            <a class="report-status-more mr-5" href="#">more...</a>
-                                            <a class="report-status-more" href="#">less...</a>
-                                        </template>
-                                        <!-- this only apear if 'oldstatus' is not there, or it's empty -->
-                                        <template data-tunless='oldstatus'>
-                                            <p class="system-msg">There's no Older Status</p>
-                                        </template>
-                                        <!-- loop throught <input>.task.oldstatus as array -->
-                                        <template data-tloop="oldstatus">
-                                            <div class="card-text text-muted font-weight-light font-italic">
-                                                <div class="report-status-detail" id="report-status-old--${user}--${statusid}">
-                                                    <p>
-                                                        <span class="report-status-date mr-3 text-primary">[${date}]</span>
-                                                        <span class="report-status-detail">${text}</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </template>
-                                        <!-- end of template cause scope to go up -->
-                                    </template>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-    
-            </template>
+        <div id="inline-editor" class="editor-area border"></div>
     </div>
 
     <!-- fixed navbar -->
-    <nav class="navbar navbar-expand-md navbar-light bg-light fixed-top py-0">
+    <nav class="navbar navbar-expand-md navbar-light bg-light fixed-top">
         <div class="container">
             <!-- <a class="navbar-brand font-weight-bold" href="#">REPORTS</a> -->
             <a class="navbar-toggler" data-toggle="collapse" data-target=".dual-collapse2">
@@ -238,20 +78,124 @@
         
     </nav>
 
+
     <!-- Main APP view inside a container, under top app bar -->
     <div class="container" id="app-main-view">
         <section id="loading-view"><p class="loading-message">loading...</p></section>
-        <textarea name="content" id="teditor"></textarea>
+        
+        <!-- Report VIEW -->
+        <section id="report-view">
+                <!-- Report template -->
+            <template id="t-report-user-view">
+                <!-- default need a single object input -->
+        
+                <!-- ${user} : refer to field 'user' of input object -->
+                <div class="report-view">
+                    <!-- loop='tasks' : refer to field 'tasks' under input object as array to loop throught
+                        also set current scope to <input>.task -->
+                    <div data-tloop="tasks" data-tasvar="taskid" class="card card-shadow">
+                        <div class="card-header" data-toggle="collapse" data-target="#report-item--${user}--${taskid}-collapse">
+                            <!-- ${user} will find in current scope, then look for upper scope 
+                                ${taskid} will refer to <input>.task.taskid (if exists)
+                                ${title} = <input>.task.title -->
+                            <div class='d-flex align-items-start'>
+                                <i data-tcond="'${taskStatus}'=='success'" class="fas fa-info-circle header-status"></i>
+                                <i data-tcond="'${taskStatus}'=='warning'" class="fas fa-exclamation-circle header-status"></i>
+                                <i data-tcond="'${taskStatus}'=='danger'" class="fas fa-exclamation-triangle header-status"></i>
+                                <a class="mr-3 truncate-on-close text-truncate font-weight-bold" href="#">
+                                    ${title}
+                                </a>
+                                <i class="fas fa-angle-down more-less"></i>
+                            </div>
+                        </div>
+        
+                        <div class="card-body py-3">
+                            <!-- task description -->
+                            <p class="card-title truncate-on-close text-truncate text-muted">${desc}</p>
 
-        <script>
-            CKEDITOR.replace('teditor', {
-                height: 200,
-                });
-        </script>
-       
+                            <!-- task deadline -->
+                            <div class='mb-3'><span>Due Date: </span>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-outline-${taskStatus} dropdown-toggle" data-toggle="dropdown">
+                                        ${dueDate}
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <h6 class="dropdown-header">Re-target</h6>
+                                        <form class="px-4 py-3">
+                                            <input type="date" class="form-control" value='${dueDateForInput}'>
+                                            <button type="submit" class="btn btn-primary due-date-retarget">Change</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <span class="badge badge-pill badge-info">3</span>
+                            </div>
+
+                            <!-- task targets -->
+                            <div class="card-text" data-tloop='targets' data-tasvar='targetid'>
+                                <div class="dropdown show" data-report-user='${user}' data-report-task='${taskid}' data-report-target='${targetid}'>
+                                    <a class="btn dropdown-toggle btn-sm target-todo target-status target-status-${targetStatus.toLowerCase()}" href="#" role="button" data-toggle="dropdown">
+                                        ${targetStatus}
+                                    </a>
+                                    <span class="ml-2 target-text target-text-${targetStatus.toLowerCase()}">${targetText}</span>
+                                    <div class="dropdown-menu target-status-items">
+                                        <a data-tcond="'${targetStatus}'=='TODO'" class="dropdown-item active" href="#">TODO</a>
+                                        <a data-tcond="'${targetStatus}'!='TODO'" class="dropdown-item" href="#">TODO</a>
+                                        <a data-tcond="'${targetStatus}'=='DONE'" class="dropdown-item active" href="#">DONE</a>
+                                        <a data-tcond="'${targetStatus}'!='DONE'" class="dropdown-item" href="#">DONE</a>
+                                        <a data-tcond="'${targetStatus}'=='REMOVED'" class="dropdown-item active" href="#">REMOVED</a>
+                                        <a data-tcond="'${targetStatus}'!='REMOVED'" class="dropdown-item" href="#">REMOVED</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- task latest status -->
+                            <div class='editor-area border-primary py-2' data-report-user='${user}' data-report-task="${taskid}"></div>
+                            <p data-tunless="newStatus" class="system-msg">There's no Updated Status submitted</p>
+                            <div class="card-text status-newitems">
+                                <div data-tloop="newStatus" class='row status-new'>
+                                    <div class="col-md-3 col-lg-2"><strong>${date}</strong></div>
+                                    <div class="col-md-9 col-lg-10">${text}</div>
+                                </div>
+                            </div>
+                            <!-- task old status -->
+                            <div id="report-item--${user}--${taskid}-collapse" class="collapse status-olditems" data-parent="#report-view">
+                                <hr>
+                                <p data-tunless='status' class="system-msg">There's no Older Status</p>
+                                <!-- loop throught <input>.task.status as array -->
+                                <div data-tloop="status" class="card-text text-muted">
+                                    <div class='row'>
+                                        <div class="col-md-3 col-lg-2 report-status-date"><strong>${date}</strong></div>
+                                        <div class="col-md-9 col-lg-10 report-status-detail">${text}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
+            </template>
+    
+        </section>
+        
+        <!-- login view -->
+        <section style="margin-top:150px" id="login-view" class='d-none'>
+            <div class="card">
+                <div class="card-header text-center text-primary">
+                    <h5 class="display-5">MRVL REPORTS</h5>
+                </div>
+                <div class="align-self-center my-5">
+                    <button id="app--login" class="btn btn-outline-primary">
+                        <img class="img-fluid img-google-dark"/>
+                        <span>Login with Google</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    
     </div>
 
-    <script type="module" src="js/main.js"></script>
+    <!-- <script type="module" src="js/UserReport.js" defer></script>
+    <script type="module" src="js/Template.js" defer></script>
+    <script type="module" src="js/main.js"></script> -->
 
 </body>
 </html>

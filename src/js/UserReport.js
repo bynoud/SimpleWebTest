@@ -134,81 +134,91 @@ function object_update(obj/*, …*/) {
  */
 function ReportEntry(rptSnapshot) {
     this.ref = null;
-    this.uid = "";
-    this.status = [];
-    this.props = {};
+    this.addedStatus = "";
 
     if (rptSnapshot) {
         this.ref = rptSnapshot.ref;
-        this.uid = rptSnapshot.key;
-        rpt.forEach ( function(itemSS) {
-            if (itemSS.key == "status") {
-                this.addStatusFromSnapshot(itemSS);
-            } else {
-                // other item just plain value
-                this.props[itemSS.key] = itemSS.val();
-            }
-        });
-    }
+        Object.assign(this, rptSnapshot.val());
+        // rpt.forEach ( function(itemSS) {
+        //     if (itemSS.key == "status") {
+        //         this.addStatusFromSnapshot(itemSS);
+        //     } else {
+        //         // other item just plain value
+        //         this[itemSS.key] = itemSS.val();
+        //     }
+        // });
+    };
 
-    this.create = (function(path, rpt, doneCB, errorCB) {
-        for (var key in rpt) {
-            if (key == 'status') {
-                this.addStatus(rpt[key]);
-            } else {
-                this.props[key] = rpt[key];
-            }
+    // this.create = (function(path, rpt, doneCB, errorCB) {
+    //     for (var key in rpt) {
+    //         if (key == 'status') {
+    //             this.addStatus(rpt[key]);
+    //         } else {
+    //             this.props[key] = rpt[key];
+    //         }
+    //     }
+    //     var ref = newChild(path, this.val(), doneCB, errorCB)
+    //     // also listen for change to get UID for status
+    //     ref.once('value') (function(snapshot) {
+    //         console.log("DD", snapshot);
+    //         snapshot.child('status').forEach( (function(ss, id) {
+    //             this.status[id].statusid = ss.key;
+    //         }).bind(this));
+    //     }).bind(this);
+    //     this.ref = ref;
+    //     this.taskid = ref.key;
+    //     return this;
+    // }).bind(this);
+
+    // /* This one intented as create whole new report, NOT send Server
+    //     query inidvidial. NO UID at this time, update later */
+    // this.addStatus = (function(stt) {
+    //     var s = {statusid: -1, date: Date.now(), text: stt};
+    //     this.status.push(s);
+    // }).bind(this);
+
+    // this.addStatusFromSnapshot = (function(ss){
+    //     ss.forEach( (function(childSS) {
+    //         var s = {statusid: childSS.key,
+    //                  date: childSS.child('date').val(),
+    //                  text: childSS.child('text').val()};
+    //         this.status.push(s);
+    //     }).bind(this) );
+    // }).bind(this);
+
+    // this.updateStatus = (function(id, stt) {
+    //     // TODO
+    // }).bind(this);
+
+    // /* ISSUE server query */
+    // this.newReport = (function(stt){
+    //     var ref = newChild()
+    // }).bind(this);
+
+    // /* NO UID is output */
+    // this.val = (function(){
+    //     var v = {status: {}};
+    //     for (var key in this.status) {
+    //         v.status[key] = {date: this.status[key]['date'],
+    //                          text: this.status[key]['text']}
+    //     }
+    //     for (var key in this.props) {
+    //         v[key] = this.props[key];
+    //     }
+    //     return v;
+    // }).bind(this);
+
+    this.liveUpdate = function(prop, uid, value) {
+        let cur;
+        if (uid) cur = this[prop][uid];
+        else cur = this[prop];
+        if (cur != value) {
+            this.hasUpdate = true;
+            if (uid) this[prop][uid] = value;
+            else this[prop] = value;
+            console.log(`report is updated [${prop}][${uid}] = `, value);
         }
-        var ref = newChild(path, this.val(), doneCB, errorCB)
-        // also listen for change to get UID for status
-        ref.once('value') (function(snapshot) {
-            console.log("DD", snapshot);
-            snapshot.child('status').forEach( (function(ss, id) {
-                this.status[id].uid = ss.key;
-            }).bind(this));
-        }).bind(this);
-        this.ref = ref;
-        this.uid = ref.key;
-        return this;
-    }).bind(this);
-
-    /* This one intented as create whole new report, NOT send Server
-        query inidvidial. NO UID at this time, update later */
-    this.addStatus = (function(stt) {
-        var s = {uid: -1, date: Date.now(), text: stt};
-        this.status.push(s);
-    }).bind(this);
-
-    this.addStatusFromSnapshot = (function(ss){
-        ss.forEach( (function(childSS) {
-            var s = {uid: childSS.key,
-                     date: childSS.child('date').val(),
-                     text: childSS.child('text').val()};
-            this.status.push(s);
-        }).bind(this) );
-    }).bind(this);
-
-    this.updateStatus = (function(id, stt) {
-        // TODO
-    }).bind(this);
-
-    /* ISSUE server query */
-    this.newReport = (function(stt){
-        var ref = newChild()
-    }).bind(this);
-
-    /* NO UID is output */
-    this.val = (function(){
-        var v = {status: {}};
-        for (var key in this.status) {
-            v.status[key] = {date: this.status[key]['date'],
-                             text: this.status[key]['text']}
-        }
-        for (var key in this.props) {
-            v[key] = this.props[key];
-        }
-        return v;
-    }).bind(this);
+    };
 }
 
 
@@ -216,8 +226,9 @@ function ReportEntry(rptSnapshot) {
  * 
  * @param {Firebase.database.DataSnapshot} userSnapshot : Snapshot under /user/<uid>
  */
-function UserEntry(userSnapshot) {
+export function UserEntry(userSnapshot) {
     console.log("UU", userSnapshot.val());
+    this.hasUpdate = false;
     this.uid = userSnapshot.key;
     this.role = userSnapshot.child('role').val();
     if (userSnapshot.hasChild('avatar')) {
@@ -225,27 +236,31 @@ function UserEntry(userSnapshot) {
     } else {
         this.avatar = 'imgs/img_avatar.png';
     }
-    this.actives = [];
-    this.archives = [];
+    this.actives = {};
+    this.archives = {};
 
-    /* In case report not fetched yet, it need async function to handle return data
-       So for simple, pass in a function which will handle each report, regardless fetching state */
-    this._eachDo = (function(arr, path, doCB/*(itemSnapshot,id)*/, errorCB/*(error)*/, doneCB) {
+    this._get = (function(arr, path, doneCB/*(reports)*/, errorCB/*(error)*/) {
         
         // FIXME: debug
-        for (var i=0; i<3; i++) {
+        for (var i=0; i<4; i++) {
             var rpt = new ReportEntry();
-            rpt.uid = "UID" + i;
-            rpt.status = []
+            rpt.title = "Task title " + i;
+            rpt.desc = 'task desc ' + i;
+            rpt.targets = {};
             for (var j=0; j<i; j++) {
-                rpt.status.push({uid: "SUID" + j + i, date:1547199432660, text: "status " + j + " " + i })
+                rpt.targets["TUID" + j + i] = {targetStatus: (j==0) ? "TODO" : (j==1) ? "DONE" : "REMOVED", targetText:"target of " + j + i};
             }
-            rpt.props['title'] = "Task title " + i;
-            rpt.props['desc'] = 'task desc ' + i;
-            arr.push(rpt);
-            if (doCB) doCB(rpt, arr.length-1);
+            rpt.status = {};
+            for (var j=0; j<i; j++) {
+                rpt.status["SUID" + j + i] = {date:1547199432660, text: "status " + j + " " + i };
+            }
+            rpt.newstatus = {};
+            for (var j=0; j<i; j++) {
+                rpt.newstatus["NUID" + j + i] = {date:1547199432660, text: "status " + j + " " + i };
+            }
+            arr["UID"+i] = rpt;
         }
-        if(doneCB) doneCB();
+        if(doneCB) doneCB(arr);
         return;
 
 
@@ -263,12 +278,12 @@ function UserEntry(userSnapshot) {
         }
     }).bind(this);
 
-    this.eachActiveDo = (function(doCB/*(rpt:ReportEntry,id)*/, errorCB/*(error)*/, doneCB) {
-        this._eachDo(this.actives, P_ACTIVE_RPT, doCB, errorCB, doneCB);
+    this.getActive = (function(doneCB, errorCB/*(error)*/) {
+        this._get(this.actives, P_ACTIVE_RPT, doneCB, errorCB);
     }).bind(this);
 
-    this.eachArchiveDo = (function(doCB/*(rpt:ReportEntry,id)*/, errorCB/*(error)*/, doneCB) {
-        this._eachDo(this.archives, P_ARCHIVE_RPT, doCB, errorCB, doneCB);
+    this.eachArchiveDo = (function(doneCB, errorCB/*(error)*/) {
+        this._get(this.archives, P_ARCHIVE_RPT, doneCB, errorCB);
     }).bind(this);
 
     this.newReport = (function(rpt, doneCB, errorCB) {
@@ -285,6 +300,15 @@ function UserEntry(userSnapshot) {
     this.archiveRpt = (function(id) {
         return this.archives[id];
     }).bind(this);
+
+    this.liveUpdate = function(prop, uid, value) {
+        const cur = this[prop][uid];
+        if (cur != value) {
+            this.hasUpdate = true;
+            this[prop][uid] = value;
+            console.log(`user ${this.uid} is updated [${prop}][${uid}] = `, value);
+        }
+    };
 
  }
 
@@ -390,4 +414,150 @@ export function UserDirectory(onSignedInCB/*()*/, onSignedOutCB/*()*/, onErrorCB
     }).bind(this);
 
 
+
 }
+
+
+/* intent tobe privated */
+
+
+function fetchDB(path) {
+    console.log("feacthDB", path);
+    return firebase.database().ref(path).once('value')
+        .then(snapshot => {
+            let target = {};
+            snapshot.forEach( itemSS => {
+                if (itemSS.key === 'placeholder') return;
+                target[itemSS.key] = itemSS.val();
+            })
+            return target;
+        })
+}
+
+function commitDB(path, source) {
+    return firebase.database().ref(path).push(source)
+        .then((ref) => {
+            return ref.key;
+        })
+};
+
+function updateDB(path, updates) {
+    return firebase.database().ref(path).update(updates);
+}
+
+// source need 'uid'
+function moveDB(record, frmPath, toPath) {
+    const updates  = {};
+    const uid = record.uid;
+    delete record.uid;
+    updates[`${frmPath}/${uid}`] = null;   // delete
+    updates[`${toPath}/${uid}`] = record;
+    return updateDB(updates);
+}
+
+class UserTask {
+    constructor(parent, taskID) {
+        this.parent = parent;
+        this.taskID = taskID;
+        this.pathNewStatus = `${parent.pathActive}/${taskID}/newStatus`;
+        this.pathStatus = `${parent.pathActive}/${taskID}/status`;
+        this.pathArchive = `${parent.pathArchive}/${taskID}`;
+    }
+    
+    commitNewStatus(status) {
+        return commitDB(this.pathNewStatus, status);
+    }
+
+    // move newStatus -> status
+    commitStatus(status) {
+        return moveDB(status, this.pathNewStatus, this.pathStatus);
+    }
+
+    // move to archive
+    archiveStatus(status) {
+        return moveDB(status, this.pathStatus, this.pathArchive);
+    }
+
+
+
+}
+
+export class UserReport {
+
+    constructor(userID) {
+        this.userID = userID;
+        this.pathActive = P_ACTIVE_RPT + userID;
+        this.pathArchive = P_ARCHIVE_RPT + userID;
+        this.tasks = {};
+        this.archives = {};
+    }
+
+
+    commitNewTask(task) {
+        return commitDB(this.pathActive, task)
+    }
+
+    getTasks() {
+        //return (this.tasks || fetchReportTo(this.tasks, this.pathActive));
+        console.log("getTasks", this.tasksPromise);
+        this.tasksPromise = this.tasksPromise || fetchDB(this.pathActive);
+        return this.tasksPromise;
+    }
+
+    getTask(taskID) {
+        if (!(taskID in this.tasks)) this.tasks[taskID] = new UserTask(this, taskID);
+        return this.tasks[taskID];
+    }
+
+
+    getArchives() {
+        this.archivesPromise = this.archivesPromise || fetchDB(this.pathArchive);
+        return this.archivesPromise;
+    }
+    
+
+    static doLogin() {
+        return auth.signInWithPopup(provider)
+            .then( result => {
+                console.log("Login success", result.user, result.credential);
+                return result;  // chainning 'then'
+            })
+            .catch( error => {
+                console.log("Login failed", error.code);
+                throw error;    // chainning error
+            });
+    }
+
+    static doLogout() {
+        return auth.signOut()
+            .then( () => {
+                console.log("loged out success");
+            })
+            .catch( error => {
+                console.log("login failed", error);
+                throw error;
+            })
+    }
+    
+
+    static onAuthCallback(onSignedIn, onSignedOut) {
+        firebase.auth().onAuthStateChanged( user => {
+            if (user) {
+                logd(" >> IN");
+                onSignedIn(user);
+            } else {
+                logd(" >> OUT");
+                onSignedOut();
+            }
+        });
+    }
+
+    static getUserInfo() {
+        return firebase.database().ref(P_USER).once('value')
+            .then(snapshot => {
+                let info = snapshot.val();
+                return info;
+            })
+    }
+}
+

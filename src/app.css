@@ -13,7 +13,7 @@ body {
     margin-bottom: 1rem;
     /* Add shadows to create the "card" effect */
     box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
-    transition: 0.3s;
+    /* transition: 0.3s; */
 }
   
 /* On mouse-over, add a deeper shadow */
@@ -25,7 +25,74 @@ body {
 .card-header {
     cursor: pointer;
 }
-  
+
+/* bigger text for badge */
+.badge.badge-pill {
+    font-size: 1em;
+}
+
+/* fontawesome re-style */
+.more-less {
+    margin-left: auto;  /* to the right of fex */
+    font-size: 1.5rem;
+    transition: all 0.2s ease-out; /* rotate transition */
+}
+
+.header-status {
+    font-size: 1.5em;
+    margin-right: 0.5em;
+}
+
+.header-status.fa-info-circle {
+    color: var(--success);
+}
+.header-status.fa-exclamation-circle {
+    color: var(--warning);
+}
+.header-status.fa-exclamation-triangle {
+    color: var(--danger);
+}
+
+/* Task targets */
+/* .target-todo::after {
+    content: "TODO"
+} */
+.target-status {
+    min-width: 100px;
+}
+.target-text-todo {
+    font-style: normal;
+    color: var(--dark);
+}
+.target-text-done {
+    font-style: italic;
+    color: var(--gray);
+}
+.target-text-removed {
+    font-style: italic;
+    text-decoration: line-through;
+    color: var(--gray);
+}
+
+/* mimic btn-* bootstrap */
+.target-status-done { /* success */
+    color: var(--white);
+    background-color: var(--success);
+    border-color: var(--success);
+}
+
+.target-status-todo { /* secondary */
+    color: var(--white);
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+}
+
+.target-status-removed { /* warning */
+    color: var(--dark);
+    background-color: var(--warning);
+    border-color: var(--warning);
+}
+
 .mainnavbar-user-avatar {
     /* This image is 687 wide by 1024 tall, similar to your aspect ratio */
     background-image: url('imgs/img_avatar.png');
@@ -48,4 +115,59 @@ body {
 .system-msg {
     font-style: italic;
     color: var(--gray);
+}
+
+/* need to put here for webpack to find */
+.img-google-dark {
+    content: url('imgs/btn_google_dark_normal_ios.svg');
+}
+
+/* denser text area for better reading */
+.editor-area * {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+}
+.editor-area {
+    max-height: 20rem;
+    margin: 1rem auto;
+}
+
+/* CK placeholder */
+.ck-editor__is-empty.ck-content.ck-editor__editable::before {
+	content: 'Add new Status';
+	position: absolute;
+	display: block;
+	
+	margin-top: 0;
+    color: var(--gray);
+    font-style: italic;
+}
+
+/* testing */
+.btn-fab {
+	position: fixed;
+	width:60px;
+	height:60px;
+	bottom: 2rem;
+	right: 2rem;
+	background-color: var(--primary);
+	color:var(--white);
+	border-radius:50px;
+	text-align:center;
+    box-shadow: 3px 3px 6px var(--gray);
+    font-size: 1.6rem;
+}
+
+.btn-fab.btn-fab-contained {
+	position: absolute;;
+    bottom: 1rem;
+    right: 1rem; 
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+}
+
+.btn-fab-icon {
+    vertical-align: middle;
+    margin-bottom: -0.5em;
 }

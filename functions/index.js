@@ -10,10 +10,19 @@ admin.initializeApp({
 
 // add new entry to 'users' in first login
 exports.addNewUser = functions.auth.user().onCreate((user/*UserRecord*/) => {
-    return admin.database().ref('/users/'+user.uid).set({
-            name: user.displayName,
-            email: user.email, googleAvatar: user.photoURL,
-            rptAvatar: '', role: 'user', quote: ''})
-        .then( function() { console.log("Add new user", user)} )
-        .catch( function(error) { console.log("Failed to add new user", user, error) })
+    const updates = {};
+    updates['/users/'+user.uid] = {
+        name: user.displayName,
+        email: user.email, googleAvatar: user.photoURL,
+        rptAvatar: '', role: 'user', quote: ''};
+    updates['/active_reports/'+user.uid] = {placeholder:0};
+    updates['/archive_reports/'+user.uid] = {placeholder:0};
+    return admin.database().ref(null).update(updates)
+        .catch( error => console.log("failed to add new user", user, error) );
+    // return admin.database().ref('/users/'+user.uid).set({
+    //         name: user.displayName,
+    //         email: user.email, googleAvatar: user.photoURL,
+    //         rptAvatar: '', role: 'user', quote: ''})
+    //     .then( function() { console.log("Add new user", user)} )
+    //     .catch( function(error) { console.log("Failed to add new user", user, error) })
 });
