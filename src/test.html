@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+
+    <!-- 'defer' is needed for order execution -->
+
+    <!-- libs JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous" ></script>
+    <script src="https://unpkg.com/popper.js/dist/umd/popper.min.js" ></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" ></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+
+    <!-- Firebase App is always required and must be first -->
+    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-app.js" ></script>
+    <!-- Add additional services that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-auth.js" ></script>
+    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-database.js" ></script>
+    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-firestore.js" ></script>
+    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-messaging.js" ></script>
+    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-functions.js" ></script>
+    <!-- Comment out (or don't include) services that you don't want to use -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-storage.js"></script> -->
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="app.css">
+    <script src="./inlineEditor-build-fortest/ckeditor.js"></script>
+
+    <script src="./libs/jquery.serialize-object.min.js"></script>
+
+    <script type="module" src="js/UserReport.js" ></script>
+    <script type="module" src="js/Template.js" ></script>
+    <script type="module" src="js/ReportView.js" ></script>
+    <script src="test.js" type="module"></script>
+
+</head>
+<body>
+
+    <div class="container" id="app-main-view">
+
+        <a class='btn btn-light' href='#' id="login-btn">Login</a>
+        <a class='btn btn-light' href='#' id='logout-btn'>logout</a>
+        <a class='btn btn-light' href='#' id='show-report-btn'>Show report</a>
+        <a class='btn btn-light' href='#' id='hide-report-btn'>Hide report</a>
+        <a class='btn btn-light' href='#' id='reshow-report-btn'>Re Show report</a>
+        <a class='btn btn-light' href='#' id='add-report-btn'>Add report</a>
+
+        <form class='d-none' id="add-report-form" name="add-report-form" action=''>
+            <div class='form-group'>
+                <input class="form-control" type="text" name="project" placeholder="Project">
+                <input class="form-control" type="text" name="title" placeholder="Title">
+                <input class="form-control" type="text" name="desc" placeholder="Description">
+                <input class="form-control" type="date" name="dueDate" placeholder="Due Date">
+
+                <input class="form-control" type="text" name="targets[0][targetStatus]" placeholder="Target Status">
+                <input class="form-control" type="text" name="targets[0][targetText]" placeholder="Target">
+                <input class="form-control" type="text" name="targets[1][targetStatus]" placeholder="Target Status">
+                <input class="form-control" type="text" name="targets[1][targetText]" placeholder="Target">
+                <input class="form-control" type="text" name="targets[2][targetStatus]" placeholder="Target Status">
+                <input class="form-control" type="text" name="targets[2][targetText]" placeholder="Target">
+
+                <input class="form-control" type="date" name="newStatus[0][date]" placeholder="">
+                <input class="form-control" type="text" name="newStatus[0][text]" placeholder="New Status">
+                <input class="form-control" type="date" name="newStatus[1][date]" placeholder="">
+                <input class="form-control" type="text" name="newStatus[1][text]" placeholder="New Status">
+
+                <input class="form-control" type="date" name="status[0][date]" placeholder="">
+                <input class="form-control" type="text" name="status[0][text]" placeholder="Status">
+                <input class="form-control" type="date" name="status[1][date]" placeholder="">
+                <input class="form-control" type="text" name="status[1][text]" placeholder="Status">
+                <input class="form-control" type="date" name="status[2][date]" placeholder="">
+                <input class="form-control" type="text" name="status[2][text]" placeholder="Status">
+
+                <input class="form-control" type="submit">
+            </div>
+        </form>
+
+        <textarea id="new-status-text" placeholder="Add new status"></textarea>
+        <button id="new-status-btn" class='btn btn-light'>Add Status</button>
+
+
+        <div id="report-view">
+
+        </div>
+
+        <section class='d-none'>
+            <template id="t-task-view" class="card card-shadow">
+                <div class="card-header" data-toggle="collapse" data-target="#report-item--${taskID}-collapse">
+                    <!-- ${user} will find in current scope, then look for upper scope 
+                        ${taskid} will refer to <input>.task.taskid (if exists)
+                        ${title} = <input>.task.title -->
+                    <div class='d-flex align-items-start'>
+                        <i data-tcond="'${taskStatus}'=='success'" class="fas fa-info-circle header-status "></i>
+                        <i data-tcond="'${taskStatus}'=='warning'" class="fas fa-exclamation-circle header-status"></i>
+                        <i data-tcond="'${taskStatus}'=='danger'" class="fas fa-exclamation-triangle header-status"></i>
+                        <a class="mr-3 truncate-on-close text-truncate font-weight-bold" href="#">
+                            ${title}
+                        </a>
+                        <i class="fas fa-angle-down more-less"></i>
+                    </div>
+                </div>
+
+                <div class="card-body py-3">
+                    <!-- task description -->
+                    <p class="card-title truncate-on-close text-truncate text-muted">${desc}</p>
+                    <!-- task targets -->
+                    <div class="card-text" data-tloop='targets' data-tasvar='targetid'>
+                        <div class="dropdown show">
+                            <a class="btn dropdown-toggle btn-sm target-todo target-status target-status-${targetStatus.toLowerCase()}" href="#" role="button" data-toggle="dropdown">
+                                ${targetStatus}
+                            </a>
+                            <span class="ml-2 target-text target-text-${targetStatus.toLowerCase()}">${targetText}</span>
+                            <div class="dropdown-menu target-status-items">
+                                <a class="dropdown-item ${targetStatus=='TODO'?'active':''}" href="#">TODO</a>
+                                <a class="dropdown-item ${targetStatus=='DONE'?'active':''}" href="#">DONE</a>
+                                <a class="dropdown-item ${targetStatus=='REMOVED'?'active':''}" href="#">REMOVED</a>
+                                <!-- <a data-tcond="${targetStatus!='TODO'" class="dropdown-item" href="#">TODO</a>
+                                <a data-tcond="${targetStatus=='DONE'" class="dropdown-item active" href="#">DONE</a>
+                                <a data-tcond="${targetStatus!='DONE'" class="dropdown-item" href="#">DONE</a>
+                                <a data-tcond="${targetStatus=='REMOVED'" class="dropdown-item active" href="#">REMOVED</a>
+                                <a data-tcond="${targetStatus!='REMOVED'" class="dropdown-item" href="#">REMOVED</a> -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- task latest status -->
+                    <div class='editor-area border-primary py-2' data-report-task="${taskID}"></div>
+                    <p data-tunless="newStatus" class="system-msg">There's no Updated Status submitted</p>
+                    <div class="card-text status-newitems">
+                        <div data-tloop="newStatus" class='row status-new'>
+                            <div class="col-md-3 col-lg-2"><strong>${date}</strong></div>
+                            <div class="col-md-9 col-lg-10">${text}</div>
+                        </div>
+                    </div>
+                    <!-- task old status -->
+                    <div id="report-item--${taskID}-collapse" class="collapse status-olditems" data-parent="#report-view">
+                        <hr>
+                        <p data-tunless='status' class="system-msg">There's no Older Status</p>
+                        <!-- loop throught <input>.task.status as array -->
+                        <div data-tloop="status" class="card-text text-muted">
+                            <div class='row'>
+                                <div class="col-md-3 col-lg-2 report-status-date"><strong>${date}</strong></div>
+                                <div class="col-md-9 col-lg-10 report-status-detail">${text}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </section>
+    
+        <section id="report-view-xx">
+            <!-- ${user} : refer to field 'user' of input object -->
+            <div class="report-view">
+                <!-- loop='tasks' : refer to field 'tasks' under input object as array to loop throught
+                    also set current scope to <input>.task -->
+                <div data-tloop="tasks" class="card card-shadow">
+                    <div class="card-header font-weight-bold" data-toggle="collapse" data-target="#report-item--U0--T0-collapse">
+                        <!-- ${user} will find in current scope, then look for upper scope 
+                            ${taskid} will refer to <input>.task.taskid (if exists)
+                            ${title} = <input>.task.title -->
+                        <div class='d-flex align-items-start'>
+                            <i class="fas fa-info-circle header-status"></i>
+                            <a class="mr-3 truncate-on-close text-truncate font-weight-bold" href="#">
+                                Lorem ipsum dolor sit amet
+                            </a>
+                            <i class="fas fa-angle-down more-less"></i>
+                        </div>
+                    </div>
+    
+                    <div class="card-body py-3">
+                        <!-- task title -->
+                        <p class="card-title text-truncate text-muted">${desc}</p>
+                        <div class='editor-area border-primary py-2'></div>
+                        <!-- task latest status -->
+                        <p data-tunless="latestid" class="system-msg">There's no Status submitted</p>
+                        <div data-tonly="latestid" class="card-text report-status-detail">
+                            <p>
+                                <span class="report-status-date mr-3 font-weight-bold text-success">[${latestdate}]</span>
+                                <span class="report-status-detail">${latesttext}</span>
+                            </p>
+                        </div>
+                        <!-- task old status -->
+                        <div id="report-item--U0--T0-collapse" class="collapse status-olditems" data-parent="#report-view">
+                            <!-- this only apear if 'oldstatus' is there, and it's not empty -->
+                            <a data-tonly="oldstatus" class="report-status-more mr-5" href="#">more...</a>
+                            <a data-tonly="oldstatus" class="report-status-more" href="#">less...</a>
+                            <!-- this only apear if 'oldstatus' is not there, or it's empty -->
+                            <p data-tunless='oldstatus' class="system-msg">There's no Older Status</p>
+                            <!-- loop throught <input>.task.oldstatus as array -->
+                            <div data-tloop="oldstatus" class="card-text text-muted font-weight-light font-italic">
+                                <div class="report-status-detail">
+                                    <p>
+                                        <span class="report-status-date mr-3 text-primary">[${date}]</span>
+                                        <span class="report-status-detail">${text}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- end of template cause scope to go up -->
+                            <div class="editor-saved-text d-none" data-user="${user}" data-task="${taskid}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="report-view">
+                <!-- loop='tasks' : refer to field 'tasks' under input object as array to loop throught
+                    also set current scope to <input>.task -->
+                <div data-tloop="tasks" class="card card-shadow">
+                    <div class="card-header" data-toggle="collapse" data-target="#report-item--U0--T1-collapse">
+                        <!-- ${user} will find in current scope, then look for upper scope 
+                            ${taskid} will refer to <input>.task.taskid (if exists)
+                            ${title} = <input>.task.title -->
+                        <div class='d-flex align-items-start'>
+                            <i class="fas fa-exclamation-circle header-status"></i>
+                            <a class="mr-3 truncate-on-close text-truncate font-weight-bold" href="#">
+                                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Necessitatibus praesentium distinctio voluptatem veritatis, rerum, quis quia molestias quae repellat tempora quasi excepturi laborum vitae ratione rem id natus ad aliquid.
+                            </a>
+                            <i class="fas fa-angle-down more-less"></i>
+                        </div>
+                    </div>
+    
+                    <div class="card-body py-3">
+                        <!-- task title -->
+                        <p class="card-title truncate-on-close text-truncate text-muted">
+                            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nulla placeat odit nemo eaque enim iusto consequatur, dolor possimus dolore? Repellendus consectetur, sint et autem labore atque odit corporis ratione nobis!
+                        </p>
+                        <!-- task deadline -->
+                        <div class='mb-3'><span>Due Date: </span>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-outline-danger dropdown-toggle" data-toggle="dropdown">
+                                        Jan 01, 2019
+                                </button>
+                                <div class="dropdown-menu">
+                                    <h6 class="dropdown-header">Dropdown header</h6>
+                                    <form class="px-4 py-3">
+                                        <input type="date" class="form-control" value='2018-03-27'>
+                                        <button type="submit" class="btn btn-primary" id="change-due-btn">Change</button>
+                                    </form>
+                                </div>
+                            </div>
+                                  
+                            <span class="badge badge-pill badge-info">3</span>
+                        </div>
+                        <!-- task targets -->
+                        <div class="card-text">
+                            <div class="dropdown show">
+                                <a class="btn btn-secondary dropdown-toggle btn-sm target-todo target-status" href="#" role="button" data-toggle="dropdown">
+                                    TODO
+                                </a>
+                                <span class="ml-2 target-text target-text-todo">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quod, eos?</span>
+                                <div class="dropdown-menu target-status-items">
+                                    <a class="dropdown-item active" href="#">TODO</a>
+                                    <a class="dropdown-item" href="#">REMOVED</a>
+                                    <a class="dropdown-item" href="#">DONE</a>
+                                </div>
+                            </div>
+
+                            <div class="dropdown show">
+                                <a class="btn btn-secondary dropdown-toggle btn-sm target-todo target-status" href="#" role="button" data-toggle="dropdown">
+                                    TODO
+                                </a>
+                                <span class="ml-2 target-text target-text-todo">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quod, eos?</span>
+                                <div class="dropdown-menu target-status-items">
+                                    <a class="dropdown-item active" href="#">TODO</a>
+                                    <a class="dropdown-item" href="#">REMOVED</a>
+                                    <a class="dropdown-item" href="#">DONE</a>
+                                </div>
+                            </div>
+                                            
+                        </div>
+                        <!-- task latest status -->
+                        <div class='editor-area border-primary py-2'></div>
+                        <div data-tonly="latestid" class="card-text report-status-detail">
+                            <div class='row'>
+                                <div class="col-md-3 col-lg-2"><strong>Jan 12, 2018</strong></div>
+                                <div class="col-md-9 col-lg-10">
+                                    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus, voluptates saepe eaque dicta mollitia pariatur animi ea itaque dolor expedita dolorum, delectus obcaecati fugit soluta magnam ipsum alias provident. Nihil!
+                                </div>
+                            </div>
+                            <div class='row'>
+                                <div class="col-md-3 col-lg-2"><strong>Jan 12, 2018</strong></div>
+                                <div class="col-md-9 col-lg-10">
+                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore, laboriosam.
+                                </div>
+                            </div>
+
+                        </div>
+                        <p data-tunless="latestid" class="system-msg">There's no Status submitted</p>
+                        <!-- task old status -->
+                        <div id="report-item--U0--T1-collapse" class="collapse status-olditems" data-parent="#report-view">
+                            <!-- loop throught <input>.task.oldstatus as array -->
+                            <div data-tloop="oldstatus" class="card-text text-muted"> <!-- </div> text-muted font-weight-light font-italic"> -->
+                                <div class="report-status-detail">
+                                    <div class='row'>
+                                        <div class="col-md-3 col-lg-2 report-status-date"><strong>Jan 12, 2018</strong></div>
+                                        <div class="col-md-9 col-lg-10 report-status-detail">
+                                            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Modi beatae omnis maxime quas aliquam repudiandae magnam esse! Nulla ad dolorum commodi autem suscipit, ea veritatis, dolorem possimus explicabo odit necessitatibus!
+                                        </div>
+                                    </div>
+                                    <div class='row'>
+                                        <div class="col-md-3 col-lg-2 report-status-date"><strong>Jan 12, 2018</strong></div>
+                                        <div class="col-md-9 col-lg-10 report-status-detail">
+                                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor nobis voluptate aut sint rerum tenetur accusantium necessitatibus atque accusamus vero!
+                                        </div>
+                                    </div>
+                                    <div class='row'>
+                                        <div class="col-md-3 col-lg-2 report-status-date"><strong>Jan 12, 2018</strong></div>
+                                        <div class="col-md-9 col-lg-10 report-status-detail">
+                                            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam suscipit ipsam recusandae fuga. Maxime, ipsa?
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="editor-saved-text d-none" data-user="${user}" data-task="${taskid}">
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#" class="btn-fab btn-fab-contained"><i class="far fa-save btn-fab-icon"></i></a>
+
+                </div>
+            </div>
+        
+            <div class="report-view">
+                <!-- loop='tasks' : refer to field 'tasks' under input object as array to loop throught
+                    also set current scope to <input>.task -->
+                <div data-tloop="tasks" class="card card-shadow">
+                    <div class="card-header" data-toggle="collapse" data-target="#report-item--U0--T1-collapse">
+                        <!-- ${user} will find in current scope, then look for upper scope 
+                            ${taskid} will refer to <input>.task.taskid (if exists)
+                            ${title} = <input>.task.title -->
+                        <div class='d-flex align-items-start'>
+                            <i class="fas fa-exclamation-triangle header-status"></i>
+                            <a class="mr-3 truncate-on-close text-truncate font-weight-bold" href="#">
+                                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Necessitatibus praesentium distinctio voluptatem veritatis, rerum, quis quia molestias quae repellat tempora quasi excepturi laborum vitae ratione rem id natus ad aliquid.
+                            </a>
+                            <i class="fas fa-angle-down more-less"></i>
+                        </div>
+                    </div>
+    
+                    <div class="card-body py-3">
+                        <!-- task title -->
+                        <p class="card-title truncate-on-close text-truncate text-muted">
+                            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nulla placeat odit nemo eaque enim iusto consequatur, dolor possimus dolore? Repellendus consectetur, sint et autem labore atque odit corporis ratione nobis!
+                        </p>
+                        <!-- task targets -->
+                        <div class="card-text">
+                            <div class="dropdown show">
+                                <a class="btn btn-secondary dropdown-toggle btn-sm target-todo target-status" href="#" role="button" data-toggle="dropdown">
+                                    TODO
+                                </a>
+                                <span class="ml-2 target-text target-text-todo">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quod, eos?</span>
+                                <div class="dropdown-menu target-status-items">
+                                    <a class="dropdown-item active" href="#">TODO</a>
+                                    <a class="dropdown-item" href="#">REMOVED</a>
+                                    <a class="dropdown-item" href="#">DONE</a>
+                                </div>
+                            </div>
+
+                            <div class="dropdown show">
+                                <a class="btn btn-secondary dropdown-toggle btn-sm target-todo target-status" href="#" role="button" data-toggle="dropdown">
+                                    TODO
+                                </a>
+                                <span class="ml-2 target-text target-text-todo">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quod, eos?</span>
+                                <div class="dropdown-menu target-status-items">
+                                    <a class="dropdown-item active" href="#">TODO</a>
+                                    <a class="dropdown-item" href="#">REMOVED</a>
+                                    <a class="dropdown-item" href="#">DONE</a>
+                                </div>
+                            </div>
+                                            
+                        </div>
+                        <!-- task latest status -->
+                        <div class='editor-area border-primary py-2'></div>
+                        <div data-tonly="latestid" class="card-text report-status-detail">
+                            <div class='row'>
+                                <div class="col-md-3 col-lg-2"><strong>Jan 12, 2018</strong></div>
+                                <div class="col-md-9 col-lg-10">
+                                    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus, voluptates saepe eaque dicta mollitia pariatur animi ea itaque dolor expedita dolorum, delectus obcaecati fugit soluta magnam ipsum alias provident. Nihil!
+                                </div>
+                            </div>
+                            <div class='row'>
+                                <div class="col-md-3 col-lg-2"><strong>Jan 12, 2018</strong></div>
+                                <div class="col-md-9 col-lg-10">
+                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore, laboriosam.
+                                </div>
+                            </div>
+
+                        </div>
+                        <p data-tunless="latestid" class="system-msg">There's no Status submitted</p>
+                        <!-- task old status -->
+                        <div id="report-item--U0--T1-collapse" class="collapse status-olditems" data-parent="#report-view">
+                            <!-- loop throught <input>.task.oldstatus as array -->
+                            <div data-tloop="oldstatus" class="card-text text-muted"> <!-- </div> text-muted font-weight-light font-italic"> -->
+                                <div class="report-status-detail">
+                                    <div class='row'>
+                                        <div class="col-md-3 col-lg-2 report-status-date"><strong>Jan 12, 2018</strong></div>
+                                        <div class="col-md-9 col-lg-10 report-status-detail">
+                                            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Modi beatae omnis maxime quas aliquam repudiandae magnam esse! Nulla ad dolorum commodi autem suscipit, ea veritatis, dolorem possimus explicabo odit necessitatibus!
+                                        </div>
+                                    </div>
+                                    <div class='row'>
+                                        <div class="col-md-3 col-lg-2 report-status-date"><strong>Jan 12, 2018</strong></div>
+                                        <div class="col-md-9 col-lg-10 report-status-detail">
+                                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor nobis voluptate aut sint rerum tenetur accusantium necessitatibus atque accusamus vero!
+                                        </div>
+                                    </div>
+                                    <div class='row'>
+                                        <div class="col-md-3 col-lg-2 report-status-date"><strong>Jan 12, 2018</strong></div>
+                                        <div class="col-md-9 col-lg-10 report-status-detail">
+                                            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Numquam suscipit ipsam recusandae fuga. Maxime, ipsa?
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="editor-saved-text d-none" data-user="${user}" data-task="${taskid}">
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#" class="btn-fab btn-fab-contained"><i class="far fa-save btn-fab-icon"></i></a>
+
+                </div>
+            </div>
+
+        </section>
+
+        <div></div>
+        <a href="#" class="btn-fab"><i class="fa fa-plus btn-fab-icon"></i></a>
+
+
+
+</body>
+</html>
