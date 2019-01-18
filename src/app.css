@@ -38,20 +38,6 @@ body {
     transition: all 0.2s ease-out; /* rotate transition */
 }
 
-.header-status {
-    font-size: 1.5em;
-    margin-right: 0.5em;
-}
-
-.header-status.fa-info-circle {
-    color: var(--success);
-}
-.header-status.fa-exclamation-circle {
-    color: var(--warning);
-}
-.header-status.fa-exclamation-triangle {
-    color: var(--danger);
-}
 
 /* Task targets */
 /* .target-todo::after {
@@ -93,6 +79,63 @@ body {
     border-color: var(--warning);
 }
 
+/* remove all margin inside detail status elements */
+.report-status-detail * {
+    margin: 0 auto;
+}
+
+.status-items hr {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), var(--gray), rgba(0, 0, 0, 0));
+    margin: 0.25em auto;
+}
+
+.task-status-success .status-button {
+    color: var(--success);
+    border-color: var(--success);
+}
+.task-status-warning .status-button {
+    color: var(--warning);
+    border-color: var(--warning);
+}
+.task-status-danger .status-button {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+.task-status-success .status-icon::before {
+    content: "\f05a";   /* fa-info-circle */
+    color: var(--success);
+}
+.task-status-warning .status-icon::before {
+    content: "\f06a";   /* fa-exclamation-circle */
+    color: var(--warning);
+}
+.task-status-danger .status-icon::before {
+    content: "\f071";   /* fa-exclamation-triangle */
+    color: var(--danger);
+}
+
+.status-icon {
+    font-size: 1.4em;
+    margin-right: 0.5em;
+}
+
+.dropdown-info-only p {
+    margin: 0 auto;
+}
+/*
+.header-status.fa-info-circle {
+    color: var(--success);
+}
+.header-status.fa-exclamation-circle {
+    color: var(--warning);
+}
+.header-status.fa-exclamation-triangle {
+    color: var(--danger);
+} */
+
 .mainnavbar-user-avatar {
     /* This image is 687 wide by 1024 tall, similar to your aspect ratio */
     background-image: url('imgs/img_avatar.png');
@@ -132,7 +175,7 @@ body {
     margin: 1rem auto;
 }
 
-/* CK placeholder */
+/* CKeditor placeholder */
 .ck-editor__is-empty.ck-content.ck-editor__editable::before {
 	content: 'Add new Status';
 	position: absolute;

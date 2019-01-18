@@ -11,19 +11,38 @@ function _super(obj) {
 
 var temporaryDiv = document.createElement('div');   // just a temporary to not create it every time
 
+function obj2str(obj) {
+    let str = "";
+    if (typeof obj == 'string') {
+        // negative look-behind is not wisely supported by browser, assume we dont work with string has escape quote
+        return '"'+obj.replace(/"/g, '\\"')+'"';
+    } else if (obj instanceof Array) {
+        obj.forEach(item => str += obj2str(item) + ",");
+        return "["+str+"]";
+    } else if (obj instanceof Function) {   // must before Object, Function is also Object
+        return obj.toString();
+    } else if (obj instanceof Object) {
+        Object.entries(obj).forEach(([key,val]) => str += key+":"+obj2str(val)+",");
+        return "{"+str+"}";
+    } else {  // assum to be Number, just try to convert it to String
+        return '' + obj;
+    }
+}
 
 function tempCalculate(text, varspace, onErrorCB) {
     var result, varDesc='';
-    try {
-        // variable emulate
-        for (var key in varspace) {
-            varDesc += "var " + key + " = " + JSON.stringify(varspace[key]) + ";"
-        }
-        eval(varDesc + "result = `" + text + "`");
-    } catch(error) {
-        console.error("Render failed for '"+text+"'", varspace);
-        if (onErrorCB) onErrorCB(error);
+    // variable emulate
+    for (var key in varspace) {
+        varDesc += `var ${key} = ${obj2str(varspace[key])};`;
+        // varDesc += "var " + key + " = " + JSON.stringify(varspace[key], function(key,val) {
+        //     return (typeof val === 'function') ? val.toString() : val;
+        // }) + ";"
     }
+    varDesc += "result = `" + text + "`";
+    //console.log(`Eval '${varDesc}'`)
+    try { eval(varDesc); }
+    catch(error) { throw(`eval '${varDesc}', ${error}`); }
+    
     // for (var key in varspace) {
     //     varDesc += "var " + key + " = " + JSON.stringify(varspace[key]) + ";"
     // }
@@ -69,10 +88,10 @@ export function createTemplate(ele) {
 }
 
 // return outer as <div>, keep all attribute same
-function template2div(ele) {
+function template2div(ele, varspace) {
     const div = document.createElement('div');
     for (let attr of ele.attributes) {
-        div.setAttribute(attr.name, attr.value);
+        div.setAttribute(attr.name, tempCalculate(attr.value, varspace));
     }
     return div;
 }
@@ -98,9 +117,14 @@ function Template(ele) {
             this.isTemplate = false;
             var c = ele.childNodes;
         }
-        for (var i=0; i<c.length; i++) {
-            if (c[i].nodeType == Node.TEXT_NODE || c[i].nodeType == Node.ELEMENT_NODE)
-                this.childs.push(createTemplate(c[i]));
+        // data-thtml : must containt single TEXT_NODE
+        if ('thtml' in ele.dataset) {
+            this.html = c[0].textContent;
+        } else {
+            for (var i=0; i<c.length; i++) {
+                if (c[i].nodeType == Node.TEXT_NODE || c[i].nodeType == Node.ELEMENT_NODE)
+                    this.childs.push(createTemplate(c[i]));
+            }
         }
     } else {
         throw "Dont throw other Node type at me";
@@ -151,24 +175,31 @@ Template.prototype.render = function(varspace, onErrorCB, parentDiv) {
         outerDiv = document.createTextNode( tempCalculate(this.text, varspace, onErrorCB) );
     } else {
         indent++;
+        try {
+            if (this.isTemplate==true) {
+                if (parentDiv) outerDiv = parentDiv;
+                else outerDiv = template2div(this.me, varspace);//document.createElement('div');
+            }
+            // Keep normal Element as it is, resolve variable inside tag anchor
+            else {
+                temporaryDiv.innerHTML = tempCalculate(this.me.outerHTML, varspace, onErrorCB);
+                outerDiv = temporaryDiv.children[0];
+                temporaryDiv.removeChild(outerDiv);
+            }
 
-        if (this.isTemplate==true) {
-            if (parentDiv) outerDiv = parentDiv;
-            else outerDiv = template2div(this.me);//document.createElement('div');
+            if (this.html) {
+                outerDiv.innerHTML = tempCalculate(this.html, varspace, onErrorCB);
+            } else {
+                for (var i=0; i<this.len(); i++) {
+                    // for child <template>, the child is append directly
+                    this.childs[i].render(varspace || {}, onErrorCB, outerDiv);
+                    //if (childDiv!==outerDiv) outerDiv.appendChild(childDiv);
+                }
+            }
+            console.log(">".repeat(indent--), outerDiv);
+        } catch(error) {
+            console.error("render failed", this, varspace, error);
         }
-        // Keep normal Element as it is, resolve variable inside tag anchor
-        else {
-            temporaryDiv.innerHTML = tempCalculate(this.me.outerHTML, varspace, onErrorCB);
-            outerDiv = temporaryDiv.children[0];
-            temporaryDiv.removeChild(outerDiv);
-        }
-
-        for (var i=0; i<this.len(); i++) {
-            // for child <template>, the child is append directly
-            this.childs[i].render(varspace || {}, onErrorCB, outerDiv);
-            //if (childDiv!==outerDiv) outerDiv.appendChild(childDiv);
-        }
-        console.log(">".repeat(indent--), outerDiv);
     }
     if (parentDiv && (parentDiv !== outerDiv)) parentDiv.appendChild(outerDiv);
     return outerDiv;
@@ -185,7 +216,7 @@ TemplateLoop.prototype.render = function(varspace, onErrorCB, parentDiv) {
     }
 
     // if this is top element, need create a container <div> surrounding the loop items
-    var outerDiv = parentDiv || template2div(this.me);//document.createElement('div');
+    var outerDiv = parentDiv || template2div(this.me, varspace);//document.createElement('div');
 
     var arr = varspace[this.loopvar];
     // global variable will be passed down. later override if any
@@ -193,17 +224,18 @@ TemplateLoop.prototype.render = function(varspace, onErrorCB, parentDiv) {
     // loop over
     if (arr instanceof Array) {
         arr.forEach( (each, i) => {
-            localVars['_loopi_'] = i;
-            var v = Object.assign({}, localVars, each);   // dont touch localVars
-            if (this.asVar) v[this.asVar] = i;
-            _super(this).render.call(this, v, onErrorCB, outerDiv);    // all child is appended to outerDiv under this call
+            if (each instanceof Object) localVars = Object.assign({}, localVars, each);
+            else localVars._loopval_ = each;
+            localVars._loopi_ = i;
+            if (this.asVar) localVars[this.asVar] = i;
+            _super(this).render.call(this, localVars, onErrorCB, outerDiv);    // all child is appended to outerDiv under this call
         });
     } else if (arr instanceof Object) {
         for (let key in arr) {
-            localVars['_loopi_'] = key;
-            var v = Object.assign({}, localVars, arr[key]);
-            if (this.asVar) v[this.asVar] = key;
-            _super(this).render.call(this, v, onErrorCB, outerDiv);
+            localVars = Object.assign({}, localVars, arr[key]);
+            localVars._loopkey_ = key;
+            if (this.asVar) localVars[this.asVar] = key;
+            _super(this).render.call(this, localVars, onErrorCB, outerDiv);
         }
     } else {
         console.error("Loop template without array or object");

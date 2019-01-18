@@ -441,7 +441,7 @@ function commitDB(path, source) {
         })
 };
 
-function updateDB(path, updates) {
+function updateDB(updates, path) {
     return firebase.database().ref(path).update(updates);
 }
 
@@ -459,9 +459,12 @@ class UserTask {
     constructor(parent, taskID) {
         this.parent = parent;
         this.taskID = taskID;
-        this.pathNewStatus = `${parent.pathActive}/${taskID}/newStatus`;
-        this.pathStatus = `${parent.pathActive}/${taskID}/status`;
+        this.pathActive = `${parent.pathActive}/${taskID}`;
         this.pathArchive = `${parent.pathArchive}/${taskID}`;
+        this.pathNewStatus = `${this.pathActive}/newStatus`;
+        this.pathStatus = `${this.pathActive}/status`;
+        this.pathDueDate = `${this.pathActive}/dueDate`;
+        this.pathRetargetDates = `${this.pathActive}/retargetDates`;
     }
     
     commitNewStatus(status) {
@@ -471,6 +474,15 @@ class UserTask {
     // move newStatus -> status
     commitStatus(status) {
         return moveDB(status, this.pathNewStatus, this.pathStatus);
+    }
+
+    // update field
+    updateDueDate(newDate, curDates) {
+        const updates = {};
+        updates[this.pathRetargetDates] = curDates;
+        updates[this.pathDueDate] = newDate;
+        console.log("udapte", updates);
+        return updateDB(updates);
     }
 
     // move to archive

@@ -111,6 +111,24 @@
                 <div class="card-body py-3">
                     <!-- task description -->
                     <p class="card-title truncate-on-close text-truncate text-muted">${desc}</p>
+
+                    <!-- task deadline -->
+                    <div class='mb-3'><span>Due Date: </span>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-${taskStatus} dropdown-toggle" data-toggle="dropdown">
+                                ${dueDate}
+                            </button>
+                            <div class="dropdown-menu">
+                                <h6 class="dropdown-header">Re-target</h6>
+                                <form class="px-4 py-3">
+                                    <input type="date" class="form-control" value='${dueDateForInput}'>
+                                    <button type="submit" class="btn btn-primary due-date-retarget">Change</button>
+                                </form>
+                            </div>
+                        </div>
+                        <span class="badge badge-pill badge-info">3</span>
+                    </div>
+
                     <!-- task targets -->
                     <div class="card-text" data-tloop='targets' data-tasvar='targetid'>
                         <div class="dropdown show">
@@ -278,6 +296,8 @@
                         </div>
                         <!-- task latest status -->
                         <div class='editor-area border-primary py-2'></div>
+                        <textarea style="width:100%"></textarea>
+                        <button class='btn btn-outline-primary'>Submit</button>
                         <div data-tonly="latestid" class="card-text report-status-detail">
                             <div class='row'>
                                 <div class="col-md-3 col-lg-2"><strong>Jan 12, 2018</strong></div>

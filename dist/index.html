@@ -6,30 +6,40 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
 
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <!-- <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet"> -->
+    <link rel="stylesheet" href="./temp_whileWebisDown/OpenSan_300_400_600_700.css">
 
     <!-- 'defer' is needed for order execution -->
 
     <!-- libs JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.min.js"
             integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
             crossorigin="anonymous" defer></script>
     <script src="https://unpkg.com/popper.js/dist/umd/popper.min.js" defer></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" defer></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"> -->
+    <script src="./temp_whileWebisDown/jquery-3.3.1.min.js"></script>
+    <script src="./temp_whileWebisDown/popper.min.js"></script>
+    <script src="./temp_whileWebisDown/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="./temp_whileWebisDown/bootstrap.min.css">
 
-    <!-- Firebase App is always required and must be first -->
-    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-app.js" defer></script>
-    <!-- Add additional services that you want to use -->
+    <!-- Firebase App is always required and must be first. Others are additional -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-app.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-auth.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-database.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-firestore.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-messaging.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-functions.js" defer></script>
-    <!-- Comment out (or don't include) services that you don't want to use -->
-    <!-- <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-storage.js"></script> -->
+    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-storage.js"></script> -->
+    <script src="./temp_whileWebisDown/firebase-app.js"></script>
+    <script src="./temp_whileWebisDown/firebase-auth.js"></script>
+    <script src="./temp_whileWebisDown/firebase-database.js"></script>
+    <script src="./temp_whileWebisDown/firebase-firestore.js"></script>
+    <script src="./temp_whileWebisDown/firebase-messaging.js"></script>
+    <script src="./temp_whileWebisDown/firebase-functions.js"></script>
 
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="./temp_whileWebisDown/fontawsome-all.css">
 
     <script src="./bundle.js" defer></script>
 
@@ -84,97 +94,106 @@
         <section id="loading-view"><p class="loading-message">loading...</p></section>
         
         <!-- Report VIEW -->
-        <section id="report-view">
-                <!-- Report template -->
-            <template id="t-report-user-view">
-                <!-- default need a single object input -->
-        
-                <!-- ${user} : refer to field 'user' of input object -->
-                <div class="report-view">
-                    <!-- loop='tasks' : refer to field 'tasks' under input object as array to loop throught
-                        also set current scope to <input>.task -->
-                    <div data-tloop="tasks" data-tasvar="taskid" class="card card-shadow">
-                        <div class="card-header" data-toggle="collapse" data-target="#report-item--${user}--${taskid}-collapse">
-                            <!-- ${user} will find in current scope, then look for upper scope 
-                                ${taskid} will refer to <input>.task.taskid (if exists)
-                                ${title} = <input>.task.title -->
-                            <div class='d-flex align-items-start'>
-                                <i data-tcond="'${taskStatus}'=='success'" class="fas fa-info-circle header-status"></i>
-                                <i data-tcond="'${taskStatus}'=='warning'" class="fas fa-exclamation-circle header-status"></i>
-                                <i data-tcond="'${taskStatus}'=='danger'" class="fas fa-exclamation-triangle header-status"></i>
-                                <a class="mr-3 truncate-on-close text-truncate font-weight-bold" href="#">
-                                    ${title}
-                                </a>
-                                <i class="fas fa-angle-down more-less"></i>
+        <section id="report-view"></section>
+        <style>
+            .report-status-detail * {
+                margin: 0 auto;
+            }
+        </style>
+        <div class='d-none'>
+            <!-- Report template -->
+            <template id="t-task-view" class="card card-shadow task-status-${taskStatus}">
+                <div class="card-header" data-toggle="collapse" data-target="#report-item--${taskID}-collapse">
+                    <!-- ${user} will find in current scope, then look for upper scope 
+                        ${taskid} will refer to <input>.task.taskid (if exists)
+                        ${title} = <input>.task.title -->
+                    <div class='d-flex align-items-start'>
+                        <!-- <i data-tcond="'${taskStatus}'=='success'" class="fas fa-info-circle header-status "></i>
+                        <i data-tcond="'${taskStatus}'=='warning'" class="fas fa-exclamation-circle header-status"></i>
+                        <i data-tcond="'${taskStatus}'=='danger'" class="fas fa-exclamation-triangle header-status"></i> -->
+                        <i class="fas status-icon"></i>
+                        <a class="text-primary font-weight-bold mr-2 text-nowrap" href="">${project}</a>
+                        <a class="text-secondary mr-3 truncate-on-close text-truncate font-weight-bold" href="#">
+                            ${title}
+                        </a>
+                        <i class="fas fa-angle-down more-less"></i>
+                    </div>
+                </div>
+
+                <div class="card-body py-3">
+                    <!-- task description -->
+                    <p class="card-title truncate-on-close text-truncate text-muted">${desc}</p>
+
+                    <!-- task deadline -->
+                    <div class='mb-3'>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-info" disabled>
+                                    ${fnDateFormat(addedDate)}
+                            </button>
+                            <button type="button" class="btn status-button dropdown-toggle dueDate-text" data-toggle="dropdown">
+                                ${fnDateFormat(dueDate)}
+                            </button>
+                            <div class="dropdown-menu">
+                                <h6 class="dropdown-header">Re-target</h6>
+                                <form class="px-4 py-3">
+                                    <input type="date" class="form-control due-date-new-value">
+                                    <button type="submit" class="btn btn-primary due-date-new-submit">Change</button>
+                                </form>
                             </div>
                         </div>
-        
-                        <div class="card-body py-3">
-                            <!-- task description -->
-                            <p class="card-title truncate-on-close text-truncate text-muted">${desc}</p>
+                        <div class="dropdown d-inline ${retargetDates.length==0?'d-none':''}">
+                            <span class="badge badge-pill badge-info dropdown-toggle status-retarget-count" data-toggle="dropdown">${retargetDates.length}</span>
+                            <div class="dropdown-menu dropdown-menu-right dropdown-info-only">
+                                <h6 class="dropdown-header">Re-target history</h6>
+                                <p data-tloop='retargetDates' class="dropdown-item disabled" href=''>${fnDateFormat(_loopval_)}</p>
+                            </div>
+                        </div>
+                    </div>
 
-                            <!-- task deadline -->
-                            <div class='mb-3'><span>Due Date: </span>
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-outline-${taskStatus} dropdown-toggle" data-toggle="dropdown">
-                                        ${dueDate}
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <h6 class="dropdown-header">Re-target</h6>
-                                        <form class="px-4 py-3">
-                                            <input type="date" class="form-control" value='${dueDateForInput}'>
-                                            <button type="submit" class="btn btn-primary due-date-retarget">Change</button>
-                                        </form>
-                                    </div>
-                                </div>
-                                <span class="badge badge-pill badge-info">3</span>
+                    <!-- task targets -->
+                    <div class="card-text" data-tloop='targets' data-tasvar='targetid'>
+                        <div class="dropdown show">
+                            <a class="btn dropdown-toggle btn-sm target-todo target-status target-status-${targetStatus.toLowerCase()}" href="#" role="button" data-toggle="dropdown">
+                                ${targetStatus}
+                            </a>
+                            <span class="ml-2 target-text target-text-${targetStatus.toLowerCase()}">${targetText}</span>
+                            <div class="dropdown-menu target-status-items">
+                                <a class="dropdown-item ${targetStatus=='TODO'?'active':''}" href="#">TODO</a>
+                                <a class="dropdown-item ${targetStatus=='DONE'?'active':''}" href="#">DONE</a>
+                                <a class="dropdown-item ${targetStatus=='REMOVED'?'active':''}" href="#">REMOVED</a>
                             </div>
+                        </div>
+                    </div>
+                    <!-- task latest status -->
+                    <div class='editor-area border-primary py-2' data-report-task="${taskID}"></div>
+                    <button class='btn btn-outline-primary new-status-submit' disabled>Submit</button>
 
-                            <!-- task targets -->
-                            <div class="card-text" data-tloop='targets' data-tasvar='targetid'>
-                                <div class="dropdown show" data-report-user='${user}' data-report-task='${taskid}' data-report-target='${targetid}'>
-                                    <a class="btn dropdown-toggle btn-sm target-todo target-status target-status-${targetStatus.toLowerCase()}" href="#" role="button" data-toggle="dropdown">
-                                        ${targetStatus}
-                                    </a>
-                                    <span class="ml-2 target-text target-text-${targetStatus.toLowerCase()}">${targetText}</span>
-                                    <div class="dropdown-menu target-status-items">
-                                        <a data-tcond="'${targetStatus}'=='TODO'" class="dropdown-item active" href="#">TODO</a>
-                                        <a data-tcond="'${targetStatus}'!='TODO'" class="dropdown-item" href="#">TODO</a>
-                                        <a data-tcond="'${targetStatus}'=='DONE'" class="dropdown-item active" href="#">DONE</a>
-                                        <a data-tcond="'${targetStatus}'!='DONE'" class="dropdown-item" href="#">DONE</a>
-                                        <a data-tcond="'${targetStatus}'=='REMOVED'" class="dropdown-item active" href="#">REMOVED</a>
-                                        <a data-tcond="'${targetStatus}'!='REMOVED'" class="dropdown-item" href="#">REMOVED</a>
-                                    </div>
-                                </div>
+                    <p data-tunless="newStatus" class="system-msg">There's no Updated Status submitted</p>
+                    <div class="card-text status-items status-newitems">
+                        <div data-tloop="newStatus" class='status-new'>
+                            <hr>
+                            <div class='row'>
+                                <div class="col-md-3 col-lg-2"><strong>${fnDateFormat(date)}</strong></div>
+                                <div class="col-md-9 col-lg-10 report-status-detail" data-thtml>${text}</div>
                             </div>
-                            <!-- task latest status -->
-                            <div class='editor-area border-primary py-2' data-report-user='${user}' data-report-task="${taskid}"></div>
-                            <p data-tunless="newStatus" class="system-msg">There's no Updated Status submitted</p>
-                            <div class="card-text status-newitems">
-                                <div data-tloop="newStatus" class='row status-new'>
-                                    <div class="col-md-3 col-lg-2"><strong>${date}</strong></div>
-                                    <div class="col-md-9 col-lg-10">${text}</div>
-                                </div>
-                            </div>
-                            <!-- task old status -->
-                            <div id="report-item--${user}--${taskid}-collapse" class="collapse status-olditems" data-parent="#report-view">
-                                <hr>
-                                <p data-tunless='status' class="system-msg">There's no Older Status</p>
-                                <!-- loop throught <input>.task.status as array -->
-                                <div data-tloop="status" class="card-text text-muted">
-                                    <div class='row'>
-                                        <div class="col-md-3 col-lg-2 report-status-date"><strong>${date}</strong></div>
-                                        <div class="col-md-9 col-lg-10 report-status-detail">${text}</div>
-                                    </div>
-                                </div>
+                        </div>
+                    </div>
+                    <!-- task old status -->
+                    <div id="report-item--${taskID}-collapse" class="collapse status-olditems" data-parent="#report-view">
+                        <p data-tunless='status' class="system-msg">There's no Older Status</p>
+                        <!-- loop throught <input>.task.status as array -->
+                        <div data-tloop="status" class="card-text text-muted status-items">
+                            <hr>
+                            <div class='row'>
+                                <div class="col-md-3 col-lg-2 report-status-date"><strong>${fnDateFormat(date)}</strong></div>
+                                <div class="col-md-9 col-lg-10 report-status-detail" data-thtml>${text}</div>
                             </div>
                         </div>
                     </div>
                 </div>
-        
             </template>
     
-        </section>
+        </div>
         
         <!-- login view -->
         <section style="margin-top:150px" id="login-view" class='d-none'>

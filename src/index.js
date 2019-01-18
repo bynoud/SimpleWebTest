@@ -1,5 +1,6 @@
-import {UserDirectory} from './js/UserReport.mjs';
-import {createTemplate} from './js/Template.mjs';
+
+import {ReportGroup} from "./js/ReportView.js";
+
 
 const CKEditor = require( '@ckeditor/ckeditor5-build-inline' );
 
@@ -12,7 +13,7 @@ const VIEW_REPORT = 'report-view',
       VIEW_LOADING = 'loading-view',
       VIEW_MAIN = 'app-main-view';
 
-let userdir,
+let reportGroup,
     logoutBtn, loginBtn, mainView, appStack,
     appTemps = {},
     reportViews = {},
@@ -26,10 +27,6 @@ function initApp() {
     mainView = document.getElementById(VIEW_MAIN);
     activePane(VIEW_LOADING);
 
-    userdir = new UserDirectory(onSignedIn, onSignedOut, onAuthError);
-    userdir.init();
-    console.log(userdir);
-
     // get all element
     logoutBtn = document.getElementById('app--logout');
     loginBtn = document.getElementById('app--login');
@@ -40,27 +37,17 @@ function initApp() {
         console.log(n, appPanes[n]);
     });
 
-    // get all Template Element out, element with 'id' will be in separated slot
-    let temps = document.querySelectorAll('template');
-    console.log(temps);
-    for (let i=0; i<temps.length; i++) {
-        appTemps[temps[i].id] = createTemplate(temps[i]);
-    }
-    console.log("temps", appTemps);
+    reportGroup = new ReportGroup(onSignedIn, onSignedOut);
+    reportGroup.init(appPanes[VIEW_REPORT], document.getElementById('t-task-view'));
 
     // callback for login/logout
     loginBtn.addEventListener('click', function() {
-        userdir.signIn();
+        reportGroup.signIn();
     });
     logoutBtn.addEventListener('click', function() {
         activePane(VIEW_LOADING);
-        userdir.signOut();
+        reportGroup.signOut();
     });
-
-    // LIVE callback for all collapsable item in report
-    // $('#report-view').on('show.bs.collapse', '.collapse', ev => {
-    //     activeEditorOn(ev.target);
-    // });
 
     // change on open/close of collapsable item
     $('#report-view').on('show.bs.collapse', '.status-olditems', ev => {
@@ -76,24 +63,24 @@ function initApp() {
         p.find('.truncate-on-close').addClass('text-truncate');
     });
 
-    // Target status is changed
-    $('#report-view').on('click', '.target-status-items', ev => {
-        const tgr = $(ev.target);
-        const sel = tgr.text();
-        const p = tgr.closest('.dropdown');
-        const text = p.find('.target-text');
-        const status = p.find('.target-status');
-        tgr.addClass('active');
-        tgr.siblings().removeClass('active');
-        status.text(sel);
-        status.removeClass("btn-success btn-secondary btn-warning");
-        text.removeClass('target-text-todo target-text-done target-text-removed');
-        const selLow = sel.toLowerCase();
-        status.addClass(`target-status-${selLow}`);
-        text.addClass(`target-text-${selLow}`);
+    // // Target status is changed
+    // $('#report-view').on('click', '.target-status-items', ev => {
+    //     const tgr = $(ev.target);
+    //     const sel = tgr.text();
+    //     const p = tgr.closest('.dropdown');
+    //     const text = p.find('.target-text');
+    //     const status = p.find('.target-status');
+    //     tgr.addClass('active');
+    //     tgr.siblings().removeClass('active');
+    //     status.text(sel);
+    //     status.removeClass("btn-success btn-secondary btn-warning");
+    //     text.removeClass('target-text-todo target-text-done target-text-removed');
+    //     const selLow = sel.toLowerCase();
+    //     status.addClass(`target-status-${selLow}`);
+    //     text.addClass(`target-text-${selLow}`);
 
-        updateTargetStatus(p.data('report-user'), p.data('report-task'), p.data('report-target'), sel);
-    });
+    //     updateTargetStatus(p.data('report-user'), p.data('report-task'), p.data('report-target'), sel);
+    // });
 
 }
 
@@ -102,7 +89,7 @@ function onSignedIn() {
     // loginBtn.classList.add("d-none");
     logoutBtn.classList.remove("d-none");
     setWaitingMsg("Loading Report");
-    setActiveAsUserReport(userdir.user());
+    setActiveAsUserReport();
 }
 
 function onSignedOut() {
@@ -112,68 +99,10 @@ function onSignedOut() {
     activePane(VIEW_LOGIN);
 }
 
-function onAuthError(error) {
-    console.log("erro callback", error);
-    //onSignedOut(); // return to signIn???
-}
-
 /* generate Report View based user data */
-function setActiveAsUserReport(user) {
-    let userID = user.uid;
-    // if there's already, dont regerate
-    if (userID in reportViews) {
-        activeReportView(userID);
-        return;
-    }
-
-    // else, create it
-    user.getActive(
-        /*done*/ function(tasks) {
-            // render HTML
-            reportViews[userID] = appTemps['t-report-user-view'].render(Object.assign({user:userID, tasks}), onError, appPanes[VIEW_REPORT]);
-            // create editor if this is current user
-            console.log("create report", reportViews[userID]);
-            if (userID == userdir.user().uid) {
-                for (let div of reportViews[userID].querySelectorAll('.editor-area')) {
-                    CKEditor.create(div)
-                        .then( editor => {
-                            
-                            editor.editing.view.document.on( 'change:isFocused', ( evt, name, value ) => {
-                                // update value when editable is remomved from focus
-                                if (!value) {
-                                    let view = editor.ui.view.editable.element;
-                                    console.log("eee", view, div);
-                                    updateStatusText(div.dataset['reportUser'], div.dataset['reportTask'], editor.getData());
-                                }
-                            } );
-                        })
-                        .catch ( error => onError(error) );
-                }
-            }
-            activeReportView(userID);
-        }, onError
-    );
-}
-
-function activeReportView(userID) {
-    for (let id in reportViews) {
-        if (id == userID) reportViews[id].classList.remove('d-none');
-        else reportViews[id].classList.add('d-none');
-    };
-    activePane(VIEW_REPORT);
-}
-
-// communicate with report database
-function updateTargetStatus(userID, taskID, targetID, status) {
-    console.log("update target", userID, taskID, targetID, status);
-    userdir.user(userID).activeRpt(taskID).liveUpdate('targets', targetID, status);
-}
-
-function updateStatusText(userID, taskID, text) {
-    console.log("update status", userID, taskID, text);
-    // redundance text from CKEditor
-    text = text.replace(/<p>&nbsp;<\/p>/g, "");
-    userdir.user(userID).activeRpt(taskID).liveUpdate('addedStatus', null, text);
+function setActiveAsUserReport(userID) {
+    reportGroup.showReport(userID)
+        .then(() => activePane(VIEW_REPORT));
 }
 
 function setWaitingMsg(msg) {
