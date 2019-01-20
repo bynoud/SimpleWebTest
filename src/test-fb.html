@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="./temp_whileWebisDown/OpenSan_300_400_600_700.css"> -->
+
+    <!-- 'defer' is needed for order execution -->
+
+    <!-- libs JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous" defer></script>
+    <script src="https://unpkg.com/popper.js/dist/umd/popper.min.js" defer></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" defer></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+    <!-- <script src="./temp_whileWebisDown/jquery-3.3.1.min.js"></script>
+    <script src="./temp_whileWebisDown/popper.min.js"></script>
+    <script src="./temp_whileWebisDown/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="./temp_whileWebisDown/bootstrap.min.css"> -->
+
+    <!-- Firebase App is always required and must be first. Others are additional -->
+    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-auth.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-database.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-firestore.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-messaging.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-functions.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-storage.js" defer></script>
+    <!-- <script src="./temp_whileWebisDown/firebase-app.js"></script>
+    <script src="./temp_whileWebisDown/firebase-auth.js"></script>
+    <script src="./temp_whileWebisDown/firebase-database.js"></script>
+    <script src="./temp_whileWebisDown/firebase-firestore.js"></script>
+    <script src="./temp_whileWebisDown/firebase-messaging.js"></script>
+    <script src="./temp_whileWebisDown/firebase-functions.js"></script> -->
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="./temp_whileWebisDown/fontawsome-all.css"> -->
+
+    <script src="./js/FirebaseTemplate.js" defer></script>
+    <script src="./test-fb.js"  defer></script>
+
+</head>
+<body>
+
+    <!-- fixed navbar -->
+    <nav class="navbar navbar-expand-md navbar-light bg-light fixed-top">
+        <div class="container">
+            <!-- <a class="navbar-brand font-weight-bold" href="#">REPORTS</a> -->
+            <a class="navbar-toggler" data-toggle="collapse" data-target=".dual-collapse2">
+                <span class="navbar-toggler-icon"></span>
+            </a>
+
+            <!-- left links -->
+            <!-- <div class="collapse navbar-collapse w-100 dual-collapse2 navbar-items-left order-2 order-md-1"> -->
+            <div class="collapse navbar-collapse w-100 navbar-items-left dual-collapse2">
+                <div class="navbar-nav mr-auto">
+                    <a class="nav-item nav-link active mainnavbar-user-avatar mt-3 mt-md-0" href="#"></a>
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle disabled" href="#" role="button" data-toggle="dropdown">
+                            OTHERS
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="#" id="navbar-go--user">User</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- right links -->
+            <div class="collapse navbar-collapse w-100 dual-collapse2">
+                <div class="navbar-nav ml-auto">
+                    <a class="nav-item nav-link d-none" href="#" id="app--logout">LOGOUT</a>
+                    <!-- <a class="nav-item nav-link" href="#" id="app--login">LOGIN</a> -->
+                </ul>
+            </div>
+        </div>
+        
+        
+    </nav>
+
+
+    <!-- Main APP view inside a container, under top app bar -->
+    <div class="container" id="app-main-view">
+        <template id='t-firebase' data-fbPath='public'>
+            <p data-fbString='myname'>${_fb}</p>
+            <div data-fbArray='myobject'>
+                <p>KEY: ${_fb.key}</p>
+                <p>DATE: ${_fb.date}</p>
+                <p>TEXT: ${_fb.text}</p>
+            </div>
+        </template>
+    </div>
+</body>
+</html>
