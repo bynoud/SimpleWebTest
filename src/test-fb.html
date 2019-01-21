@@ -48,7 +48,7 @@
 <body>
 
     <!-- fixed navbar -->
-    <nav class="navbar navbar-expand-md navbar-light bg-light fixed-top">
+    <nav class="d-none navbar navbar-expand-md navbar-light bg-light fixed-top">
         <div class="container">
             <!-- <a class="navbar-brand font-weight-bold" href="#">REPORTS</a> -->
             <a class="navbar-toggler" data-toggle="collapse" data-target=".dual-collapse2">
@@ -87,9 +87,9 @@
     <!-- Main APP view inside a container, under top app bar -->
     <div class="container" id="app-main-view">
         <template id='t-firebase' data-fbPath='public'>
-            <p data-fbString='myname'>${_fb}</p>
-            <div data-fbArray='myobject'>
-                <p>KEY: ${_fb.key}</p>
+            <p data-fbString='myname'>${_fb}xx</p>
+            <div data-fbArray='myobject' data-tonly='_fb.date'>
+                <p>KEY: ${_key}</p>
                 <p>DATE: ${_fb.date}</p>
                 <p>TEXT: ${_fb.text}</p>
             </div>

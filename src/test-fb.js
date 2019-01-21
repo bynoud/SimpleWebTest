@@ -14,8 +14,12 @@ firebase.initializeApp(config);
 
 const db = firebase.database();
 
+var temp = document.getElementById('t-firebase');
+var mainView = document.getElementById('app-main-view');
 
-var parsed = FirebaseTemplate.parse(document.getElementById('t-firebase'));
+var parsed = FirebaseTemplate.parse(temp);
+parsed.populate();
+mainView.appendChild(parsed.outerEle);
 
 // 'public public/myname public/myobject'.split(/\s+/).forEach( path => {
 //     db.ref(path).on('value', (dataSnapshot) => {
