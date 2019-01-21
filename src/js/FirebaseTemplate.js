@@ -29,7 +29,7 @@ function _eval(text, varspace) {
 
 
 // 'key' must be simple name with out '.'
-function _keyInObjectX(key, obj) {
+function _keyInObject(key, obj) {
     console.log(`check key in obj ${key}, ${obj}`);
     if (!(obj instanceof Object)) return false;
     if (!(key in obj)) return false;
@@ -39,11 +39,6 @@ function _keyInObjectX(key, obj) {
     // else, assum it's primitive
     if (v) return true;
     return false;
-}
-function _keyInObject(key, obj) {
-    let x = _keyInObjectX(key, obj);
-    console.log("    > ", x);
-    return x;
 }
 
 // in && not empty, 'key' is a string with '.'
